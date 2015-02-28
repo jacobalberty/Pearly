@@ -26,8 +26,12 @@ class Router extends Base
     private function getAuth()
     {
         $authclass = "\\{$this->registry->pkg}\\Core\\Auth";
-        $auth = new $authclass($this->registry);
-        return $auth->getPerms();
+        if (class_exists($authclass)) {
+            $auth = new $authclass($this->registry);
+            return $auth->getPerms();
+        } else {
+            return array('default' => true);
+        }
     }
 
     /**
