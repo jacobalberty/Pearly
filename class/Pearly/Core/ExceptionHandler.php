@@ -64,19 +64,22 @@ EOM;
         foreach ($trace as $key => $stackPoint) {
             // I'm converting arguments to their type
             // (prevents passwords from ever getting logged as anything other than 'string')
-            $trace[$key]['args'] = array_map('gettype', $trace[$key]['args']);
+            if (array_key_exists('args', $trace[$key])) {
+                $trace[$key]['args'] = array_map('gettype', $trace[$key]['args']);
+            }
         }
 
         // build your tracelines
         $result = array();
         foreach ($trace as $key => $stackPoint) {
+            $args = array_key_exists('args', $stackPoint) ? implode(', ', $stackPoint['args']) : null;
             $result[] = sprintf(
                 $traceline,
                 $key,
                 isset($stackPoint['file']) ? $stackPoint['file'] : '[internal function]',
                 isset($stackPoint['line']) ? $stackPoint['line'] : '',
                 $stackPoint['function'],
-                implode(', ', $stackPoint['args'])
+                $args
             );
         }
         // trace always ends with {main}
