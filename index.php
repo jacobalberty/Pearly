@@ -21,9 +21,6 @@ mb_http_output('UTF-8');
 if (!defined('CORE_PATH')) {
     define('CORE_PATH', __DIR__);
 }
-if (!defined('PEARLY_PATH')) {
-    define('PEARLY_PATH', CORE_PATH);
-}
 include_once './vendor/autoload.php';
 
 $logger = new \Pearly\Core\Logger();
