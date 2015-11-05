@@ -1,4 +1,5 @@
 {
+    "name": "jacobalberty/pearly",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
