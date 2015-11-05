@@ -83,7 +83,7 @@ class Router extends Base
         Type::setRegistry($this->registry);
 
         // Type initialization.
-        Type::addType("\\Pearly\\Model\\Type\\StringType");
+        Type::addType("\\Pearly\\Model\\Type\\stringType");
 
         $auth = $this->getAuth();
 
