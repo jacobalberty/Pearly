@@ -83,7 +83,7 @@ class Router extends Base
         Type::setRegistry($this->registry);
 
         // Type initialization.
-        foreach ($this->getClassesFromDir(CORE_PATH.'/class/Pearly/Model/Type/') as $class) {
+        foreach ($this->getClassesFromDir(PEARLY_PATH.'/class/Pearly/Model/Type/') as $class) {
             Type::addType("\\Pearly\\Model\\Type\\{$class}");
         }
 

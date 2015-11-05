@@ -20,6 +20,7 @@ mb_http_output('UTF-8');
  * Path to root installation directory
  */
 define('CORE_PATH', __DIR__);
+define('PEARLY_PATH', CORE_PATH);
 
 include_once './vendor/autoload.php';
 
