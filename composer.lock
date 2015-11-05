@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6cbb0d34570ec9cf6d146e6a9d4c303d",
-    "content-hash": "d429a1257e4a3e1d6f474c409d7cbee6",
+    "hash": "92e6c14cb4e73c345a1cfb397d03a935",
+    "content-hash": "5836cb20096e94ebc7eac78ec89f5fa7",
     "packages": [
         {
             "name": "itbz/fpdf",
@@ -78,17 +78,11 @@
         },
         {
             "name": "tureki/phpcc",
-            "version": "dev-master",
+            "version": "dev-sortfix",
             "source": {
                 "type": "git",
-                "url": "https://github.com/tureki/php-closure-compiler.git",
-                "reference": "b375b10b0c5807e6f04789a4f104504144f540bc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/tureki/php-closure-compiler/zipball/b375b10b0c5807e6f04789a4f104504144f540bc",
-                "reference": "b375b10b0c5807e6f04789a4f104504144f540bc",
-                "shasum": ""
+                "url": "https://github.com/jacobalberty/php-closure-compiler.git",
+                "reference": "5f4ea11abcac56d5736264507a9596e33d84c524"
             },
             "require": {
                 "php": ">=5.3.0"
@@ -99,14 +93,12 @@
                     "tureki": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache 2"
             ],
             "authors": [
                 {
                     "name": "tureki",
-                    "email": "tureki11@gmail.com",
                     "homepage": "https://github.com/tureki"
                 }
             ],
@@ -116,7 +108,7 @@
                 "compress",
                 "php"
             ],
-            "time": "2014-06-27 13:22:48"
+            "time": "2015-11-05 17:08:13"
         }
     ],
     "packages-dev": [],

@@ -2,6 +2,12 @@
     "name": "jacobalberty/pearly",
     "minimum-stability": "dev",
     "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/jacobalberty/php-closure-compiler.git"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Pearly\\":         "class/Pearly"
@@ -15,6 +21,6 @@
     "require": {
         "itbz/fpdf": "^1.7",
         "psr/log": "^1.0",
-        "tureki/phpcc": "dev-master"
+        "tureki/phpcc": "dev-sortfix"
     }
 }
