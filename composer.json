@@ -10,13 +10,13 @@
     ],
     "autoload": {
         "psr-4": {
-            "Pearly\\":         "class/Pearly"
+            "Pearly\\":         "src/Pearly"
         },
         "classmap": [
-            "class/Pearly/Http.php",
-            "class/Pearly/Html.php"
+            "src/Http.php",
+            "src/Html.php"
         ],
-        "files": [ "includes/functions.inc.php" ]
+        "files": [ "src/functions.inc.php" ]
     },
     "require": {
         "itbz/fpdf": "^1.7",
