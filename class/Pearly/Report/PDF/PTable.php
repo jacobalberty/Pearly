@@ -44,7 +44,7 @@ class PTable
      *
      * @param Array $data array containing the row to draw.
      */
-    public function Row($data)
+    public function Row($data, $border = true)
     {
         //Calculate the height of the row
         $nb=0;
@@ -61,8 +61,10 @@ class PTable
             //Save the current position
             $x=$this->pdf->GetX();
             $y=$this->pdf->GetY();
-            //Draw the border
-            $this->pdf->Rect($x, $y, $w, $h);
+            if ($border) {
+                //Draw the border
+                $this->pdf->Rect($x, $y, $w, $h);
+            }
             //Print the text
             $this->pdf->MultiCell($w, 5, $data[$i], 0, $a);
             //Put the position to the right of the cell

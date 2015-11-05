@@ -66,9 +66,15 @@ class Logger extends Log\AbstractLogger
                         $referer = ", referer: {$_SERVER['HTTP_REFERER']}";
                     }
                     $client = '';
-                    if (!empty($_SERVER['REMOTE_ADDR'])) {
+                    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                        $client = "[client {$_SERVER['HTTP_X_FORWARDED_FOR']}] ";
+                        if (!empty($_SERVER['REMOTE_ADDR'])) {
+                            $client .= "[proxy {$_SERVER['REMOTE_ADDR']}] ";
+                        }
+                    } else if (!empty($_SERVER['REMOTE_ADDR'])) {
                         $client = "[client {$_SERVER['REMOTE_ADDR']}] ";
                     }
+
                     syslog(
                         $priority,
                         "[{$level}] {$client}"

@@ -7,16 +7,18 @@
 namespace Pearly\Model\Type;
 
 use Pearly\Model\IType;
+use Pearly\Model\TypeBase;
 
 /**
- * Date type class.
+ * String type class
  */
-class Date implements IType
+class StringType extends TypeBase implements IType
 {
     /**
      * Validate function
      *
-     * The Date type currently does not support any validation.
+     * This function checks the length of $value against 'maxlength' in $props and returns
+     * a validation error if $value is too long.
      *
      * @param mixed  $value Value of the data.
      * @param string $name  This contains either the name of the class or 'dname' if set from $props.
@@ -27,13 +29,16 @@ class Date implements IType
     public function validate($value, $name, $props)
     {
         $messages = array();
+        if (isset($props['maxlength']) && mb_strlen($value) > $props['maxlength']) {
+            $messages[] = "Length of '{$name}' is greater than maximum allowed length of '{$props['maxlength']}'";
+        }
         return $messages;
     }
 
     /**
      * Convert to display value function.
      *
-     * This function uses date() to convert the internal timestamp to a human readable date.
+     * This function converts the data to a human readable format suitable for display.
      *
      * @param mixed $value The data to be converted
      *
@@ -41,13 +46,13 @@ class Date implements IType
      */
     public function convertToDisplayValue($value)
     {
-        return (!is_null($value) && !empty($value)) ? date('Y-m-d', $value) : null;
+        return $value;
     }
 
     /**
      * Convert to PHP value function.
      *
-     * This function uses strtotime to convert $value into a timestamp to handle internally.
+     * This function converts the data suitable for php's internal use.
      *
      * @param mixed $value The data to be converted
      *
@@ -55,13 +60,13 @@ class Date implements IType
      */
     public function convertToPHPValue($value)
     {
-        return !is_null($value) ? strtotime($value) : null;
+        return $value;
     }
 
     /**
      * Convert to database value function.
      *
-     * This function uses date() to convert the internal timestamp to a native database format.
+     * This function returns the data in a format suitable for storing in the database.
      *
      * @param mixed $value The data to be converted
      *
@@ -69,7 +74,7 @@ class Date implements IType
      */
     public function convertToDatabaseValue($value)
     {
-        return (!is_null($value) && !empty($value)) ? date('Y-m-d', $value) : null;
+        return $value;
     }
 
     /**
@@ -81,6 +86,6 @@ class Date implements IType
      */
     public function getName()
     {
-        return 'date';
+        return 'string';
     }
 }

@@ -26,4 +26,17 @@ abstract class AuthBase extends Base implements IAuth
      * @return array an array containing the permissions in the specified format.
      */
     abstract public function getPerms();
+
+    /**
+     * Get data function.
+     *
+     * This function returns data about the currently authorized user.
+     * It is up to the authentication module to decide what is or is not supported.
+     * If the data does not exist this function MUST return null.
+     *
+     * @param string $key Key to search for.
+     *
+     * @return mixed null if no data found or the matching data.
+     */
+    abstract public function getData($key);
 }

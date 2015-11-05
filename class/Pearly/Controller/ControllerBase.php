@@ -50,7 +50,7 @@ abstract class ControllerBase extends Base implements IController
         $this->authorized = (isset($auth['controllerdefault']) && is_bool($auth['controllerdefault'])) ? $auth['controllerdefault'] : $this->authorized;
         $this->authorized = (isset($auth[$classname]) && is_bool($auth[$classname])) ? $auth[$classname] : $this->authorized;
 
-        $this->back = $_SERVER['HTTP_REFERER'];
+        $this->back = '?' . $_SERVER['QUERY_STRING'];
 
         parent::__construct($registry);
 
@@ -101,7 +101,12 @@ abstract class ControllerBase extends Base implements IController
             $_POST['__NAME__'] = '$_POST';
             $url = call_user_func_array(array($this, $fname), array_merge(array($_POST), $params));
         } catch (\ErrorException $e) {
-            $this->addMessage('['.strftime('%c').'] Caught Error: '.$e->getMessage()."\n");
+            if (is_callable(array($this, 'exceptionMessage'))) {
+                $excM = $this->exceptionMessage($e);
+            } else {
+                $excM = 'Caught Error: '.$e->getMessage();
+            }
+            $this->addMessage('['.strftime('%c')."] {$excM}\n");
             $this->logger->error(
                 "Caught Error: '" . $e->getMessage()
                 . "' In file: '" . $e->getFile()
@@ -112,6 +117,19 @@ abstract class ControllerBase extends Base implements IController
             );
 
             $url = $this->back;
+
+            /** @todo Refactor this */
+            $parray = $_POST;
+            $preg_grep_keys = function ($pattern, $input, $flags = 0)
+                {
+                    return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
+                };
+            $parray = $preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
+            $query = parse_url($url, PHP_URL_QUERY);
+            if ($query) {
+                $url = '?' . \Http::mquery($query, '&', $parray);
+            }
+
             if ($this->registry->debug) {
                 throw new \ErrorException(
                     $e->getMessage(),

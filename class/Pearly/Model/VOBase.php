@@ -16,7 +16,7 @@ use Pearly\Core\ValidationException;
  * Base class for Value Objects.
  * @property string $mode used to indicate whether we are accessing from a model or view.
  */
-class VOBase implements \Iterator, \Serializable
+class VOBase implements \Iterator, \Serializable, \JsonSerializable
 {
     /** Used to indicate we are accessing data from a model. */
     const MODE_MODEL = 1; // 0b001
@@ -363,6 +363,15 @@ class VOBase implements \Iterator, \Serializable
         return key($this->values) !== null;
     }
 
+    public function jsonSerialize()
+    {
+        $data = [];
+        foreach ($this->props as $key => $val) {
+            $value = $this->__get($key);
+            $data[strtolower($key)] = $value !== null ? $this->__get($key) : '';
+        }
+        return $data;
+    }
 
     public function serialize()
     {
@@ -394,11 +403,29 @@ class VOBase implements \Iterator, \Serializable
         $this->origValues = $this->values;
     }
 
+    public function dirty()
+    {
+        $keys = func_get_args();
+        foreach ($keys as $key) {
+            unset($this->origValues[$key]);
+        }
+    }
+
+    public function clean()
+    {
+        $keys = func_get_args();
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $this->values)) {
+                $this->origValues[$key] = $this->values[$key];
+            }
+        }
+    }
+
     public function getDirty()
     {
         $result = array();
         foreach ($this->values as $key => $value) {
-            if ($this->origValues[$key] != $value) {
+            if (!array_key_exists($key, $this->origValues) || $this->origValues[$key] != $value) {
                 $result[$key] = $value;
             }
         }

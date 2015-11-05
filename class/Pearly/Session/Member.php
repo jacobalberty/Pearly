@@ -108,10 +108,10 @@ class Member implements \ArrayAccess
      */
     public function &offsetGet($offset)
     {
-        if ($this->offsetExists($offset)) {
-            return $this->member[$offset];
+        if (!$this->offsetExists($offset)) {
+            $this->member[$offset] = null;
         }
-        return null;
+        return $this->member[$offset];
     }
 
     /**

@@ -47,9 +47,10 @@ class ExceptionHandler implements LoggerAwareInterface
      * This function sanitizes the stacktrace by converting variables
      * to their types then uses $this->logger->error() to save a log of the exception.
      *
-     * @param \Exception $ex the exception to log.
+     * @param \Exception|\ParseError $ex the exception to log.
      */
-    public function exceptionHandler(\Exception $ex)
+//    public function exceptionHandler(\Exception $ex)
+    public function exceptionHandler($ex)
     {
         // these are our templates
         $traceline = "#%s %s(%s): %s(%s)";

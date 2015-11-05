@@ -25,13 +25,26 @@ class Router extends Base
      */
     private function getAuth()
     {
-        $authclass = "\\{$this->registry->pkg}\\Core\\Auth";
+        $factoryclass = "\\{$this->registry->pkg}\\Factory\\AuthFactory";
+
+        if (class_exists($factoryclass)) {
+            $af = new $factoryclass();
+            $auth = $af->build($this->registry);
+            $this->registry->auth = $auth;
+
+            return $auth->getPerms();
+        }
+
+        $authclass = "\\{$this->registry->pkg}\\Core\\{$this->registry->auth}Auth";
         if (class_exists($authclass)) {
             $auth = new $authclass($this->registry);
+            $this->registry->auth = $auth;
             return $auth->getPerms();
-        } else {
-            return array('default' => true);
         }
+        return [
+            'default' => false,
+            'viewdefault' => true,
+        ];
     }
 
     /**
@@ -67,6 +80,8 @@ class Router extends Base
         // Session Configuration.
         Session::setName(hash('crc32', CORE_PATH.'/'.$this->registry->cfg));
 
+        Type::setRegistry($this->registry);
+
         // Type initialization.
         foreach ($this->getClassesFromDir(CORE_PATH.'/class/Pearly/Model/Type/') as $class) {
             Type::addType("\\Pearly\\Model\\Type\\{$class}");
@@ -88,7 +103,14 @@ class Router extends Base
             $aname = array_shift($f_arr);
             $url = $cinst->invoke($aname, $f_arr);
             if (mb_substr($url, 0, 1) == '?') {
-                $url = '?' . \Http::mquery(mb_substr($url, 1));
+                $parray = $_POST;
+                $preg_grep_keys = function ($pattern, $input, $flags = 0)
+                    {
+                        return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
+                    };
+                $parray = $preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
+
+                $url = '?' . \Http::mquery(mb_substr($url, 1), '&', $parray);
             }
             if (!empty($url)) {
                 require 'html/redirect.en-us.php';

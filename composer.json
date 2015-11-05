@@ -1,0 +1,19 @@
+{
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Pearly":         "class/Pearly"
+        },
+        "classmap": [
+            "class/Pearly/Http.php",
+            "class/Pearly/Html.php"
+        ],
+        "files": [ "includes/functions.inc.php" ]
+    },
+    "require": {
+        "itbz/fpdf": "^1.7",
+        "psr/log": "^1.0",
+        "tureki/phpcc": "dev-master"
+    }
+}

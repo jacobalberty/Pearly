@@ -20,15 +20,8 @@ mb_http_output('UTF-8');
  * Path to root installation directory
  */
 define('CORE_PATH', __DIR__);
-/**
- * Path containing the php classes to load
- */
-define('CLASS_DIR', CORE_PATH.'/class');
-//set_include_path(get_include_path().PATH_SEPARATOR.CLASS_DIR);
-//spl_autoload_register('spl_autoload');
-require CORE_PATH.'/includes/SplClassLoader.php';
-$classLoader = new SplClassLoader(null, CORE_PATH.'/class');
-$classLoader->register();
+
+include_once './vendor/autoload.php';
 
 $logger = new \Pearly\Core\Logger();
 
@@ -36,7 +29,6 @@ $eh = new \Pearly\Core\ExceptionHandler();
 $eh->setLogger($logger);
 $eh->register();
 
-require CORE_PATH.'/includes/functions.inc.php';
 set_error_handler("exception_error_handler", E_ALL);
 setTimeZone("America/Chicago");
 $router = new \Pearly\Core\Router();

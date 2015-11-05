@@ -7,16 +7,17 @@
 namespace Pearly\Model\Type;
 
 use Pearly\Model\IType;
+use Pearly\Model\TypeBase;
 
 /**
- * Time type class.
+ * Number type class
  */
-class Time implements IType
+class NumberType extends TypeBase implements IType
 {
     /**
      * Validate function
      *
-     * The Time type currently does not support any validation.
+     * No validation is performed on numbers at this time
      *
      * @param mixed  $value Value of the data.
      * @param string $name  This contains either the name of the class or 'dname' if set from $props.
@@ -33,7 +34,7 @@ class Time implements IType
     /**
      * Convert to display value function.
      *
-     * This function uses date() to convert the internal timestamp to a human readable time.
+     * This function converts the data to a human readable format suitable for display.
      *
      * @param mixed $value The data to be converted
      *
@@ -41,13 +42,13 @@ class Time implements IType
      */
     public function convertToDisplayValue($value)
     {
-        return (!is_null($value) && !empty($value)) ? date('H:i:s', $value) : null;
+        return $value;
     }
 
     /**
      * Convert to PHP value function.
      *
-     * This function uses strtotime to convert $value into a timestamp to handle internally.
+     * This function converts the data suitable for php's internal use.
      *
      * @param mixed $value The data to be converted
      *
@@ -55,14 +56,13 @@ class Time implements IType
      */
     public function convertToPHPValue($value)
     {
-        return !is_null($value) ? strtotime($value) : null;
+        return intval($value);
     }
-
 
     /**
      * Convert to database value function.
      *
-     * This function uses date() to convert the internal timestamp to a native database format.
+     * This function returns the data in a format suitable for storing in the database.
      *
      * @param mixed $value The data to be converted
      *
@@ -70,7 +70,7 @@ class Time implements IType
      */
     public function convertToDatabaseValue($value)
     {
-        return (!is_null($value) && !empty($value)) ? date('H:i:s', $value) : null;
+        return $value;
     }
 
     /**
@@ -82,6 +82,6 @@ class Time implements IType
      */
     public function getName()
     {
-        return 'time';
+        return 'number';
     }
 }

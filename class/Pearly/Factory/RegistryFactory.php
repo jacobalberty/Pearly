@@ -27,8 +27,10 @@ class RegistryFactory
      */
     public function __construct()
     {
-        $this->pkg = isset($_REQUEST['pkg']) ? $_REQUEST['pkg'] : parse_ini_file(CORE_PATH.'/conf/pearly.inc.php', false)['pkg'];
-        $this->conf = CORE_PATH . '/conf/' . (isset($_REQUEST['conf']) ? $_REQUEST['conf'] : mb_strtolower($this->pkg)) . '.inc.php';
+        $pkg = \Http::valueFrom($_REQUEST, 'pkg', null);
+        $conf = \Http::valueFrom($_REQUEST, 'conf', null);
+        $this->pkg = !is_null($pkg) ? $pkg : parse_ini_file(CORE_PATH.'/conf/pearly.inc.php', false)['pkg'];
+        $this->conf = CORE_PATH . '/conf/' . (!is_null($conf) ? $conf : mb_strtolower($this->pkg)) . '.inc.php';
     }
 
     /**

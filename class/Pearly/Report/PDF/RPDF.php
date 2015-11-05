@@ -8,15 +8,12 @@
  */
 namespace Pearly\Report\PDF;
 
-/** This file depends on fpdf */
-require '3rdparty/fpdf/fpdf.php';
-
 /**
  * Base PRDF class
  *
  * This class implements any features necessary for the reporting engine.
  */
-class RPDF extends \FPDF
+class RPDF extends \fpdf\FPDF
 {
     /** @var callback Footer callback to allow defining a footer without inheriting from this class */
     public $cFooter = null;
@@ -45,12 +42,14 @@ class RPDF extends \FPDF
      *
      * A simple helper function to interface with PTable and display data in a page width multi-page table.
      *
-     * @param Array $widths Array containing numeric values for the width of each column.
-     * @param Array $data Multi-dimensional array containing the rows of data to be displayed in the table.
-     * @param Array $header Single header row to describe the contents of the table. It is printed at the begining of each table and immediately following each page break.
+     * @param Array   $widths Array containing numeric values for the width of each column.
+     * @param Array   $data   Multi-dimensional array containing the rows of data to be displayed in the table.
+     * @param Array   $header Single header row to describe the contents of the table. It is printed at the begining of each table and immediately following each page break.
+     * @param boolean $border Indicates whether or not to draw a border around each cell. Default value is true.
+     *
      * @return RPDF Returns this instance of RPDF for chaining.
      */
-    public function addTable($widths, $data, $header = null)
+    public function addTable($widths, $data, $header = null, $border = true)
     {
         $ptable = new PTable($this);
 
@@ -58,14 +57,36 @@ class RPDF extends \FPDF
         if (!is_null($header)) {
             $ptable->header = $header;
             $this->setFont('', 'B');
-            $ptable->Row($header);
+            $ptable->Row($header, $border);
             $this->setFont('');
         }
 
         foreach ($data as $row) {
-            $ptable->Row($row);
+            $ptable->Row($row, $border);
         }
 
+        return $this;
+    }
+
+    /**
+     *
+     * Prints a cell (rectangular area) with optional borders, background color and character string. The upper-left corner of the cell corresponds to the current position. The text can be aligned or centered. After the call, the current position moves to the right or to the next line. It is possible to put a link on the text. 
+     * If automatic page breaking is enabled and the cell goes beyond the limit, a page break is done before outputting.
+     *
+     * @param float $w Cell width. If 0, the cell extends up to the right margin.
+     * @param float $h Cell height. Default value: 0.
+     * @param string $txt String to print. Default value: empty string.
+     * @param mixed $border Indicates if borders must be drawn around the cell. Default value: 0.
+     * @param int $ln Indicates where the current position should go after the call. Default value: 0.
+     * @param string $align Allows to center or align the text.
+     * @param boolean $fill Indicates if the cell background must be painted (true) or transparent (false). Default value: false.
+     * @param mixed $lin kURL or identifier returned by AddLink().
+     *
+     * @return RPDF Returns this instance of RPDF for chaining.
+     */
+    public function Cell($w, $h=0, $txt = '', $border=0, $ln=0, $align='', $fill=false, $link='')
+    {
+        parent::Cell($w, $h, $txt, $border, $ln, $align, $fill, $link);
         return $this;
     }
 

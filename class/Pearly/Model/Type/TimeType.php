@@ -7,17 +7,19 @@
 namespace Pearly\Model\Type;
 
 use Pearly\Model\IType;
+use Pearly\Model\TypeBase;
 
 /**
- * String type class
+ * Time type class.
  */
-class String implements IType
+class TimeType extends TypeBase implements IType
 {
+    protected static $intl;
+
     /**
      * Validate function
      *
-     * This function checks the length of $value against 'maxlength' in $props and returns
-     * a validation error if $value is too long.
+     * The Time type currently does not support any validation.
      *
      * @param mixed  $value Value of the data.
      * @param string $name  This contains either the name of the class or 'dname' if set from $props.
@@ -28,16 +30,13 @@ class String implements IType
     public function validate($value, $name, $props)
     {
         $messages = array();
-        if (isset($props['maxlength']) && mb_strlen($value) > $props['maxlength']) {
-            $messages[] = "Length of '{$name}' is greater than maximum allowed length of '{$props['maxlength']}'";
-        }
         return $messages;
     }
 
     /**
      * Convert to display value function.
      *
-     * This function converts the data to a human readable format suitable for display.
+     * This function uses date() to convert the internal timestamp to a human readable time.
      *
      * @param mixed $value The data to be converted
      *
@@ -45,13 +44,23 @@ class String implements IType
      */
     public function convertToDisplayValue($value)
     {
-        return $value;
+        if (is_null(self::$intl)) {
+            self::$intl = new \IntlDateFormatter(
+                $this->registry->locale,
+                \IntlDateFormatter::NONE,
+                \IntlDateFormatter::MEDIUM
+            );
+            if ($this->registry->iso8601) {
+                self::$intl->setPattern('HH:mm:ss');
+            }
+        }
+        return (!is_null($value) && !empty($value)) ? self::$intl->format($value) : null;
     }
 
     /**
      * Convert to PHP value function.
      *
-     * This function converts the data suitable for php's internal use.
+     * This function uses strtotime to convert $value into a timestamp to handle internally.
      *
      * @param mixed $value The data to be converted
      *
@@ -59,13 +68,14 @@ class String implements IType
      */
     public function convertToPHPValue($value)
     {
-        return $value;
+        return !is_null($value) ? strtotime($value) : null;
     }
+
 
     /**
      * Convert to database value function.
      *
-     * This function returns the data in a format suitable for storing in the database.
+     * This function uses date() to convert the internal timestamp to a native database format.
      *
      * @param mixed $value The data to be converted
      *
@@ -73,7 +83,7 @@ class String implements IType
      */
     public function convertToDatabaseValue($value)
     {
-        return $value;
+        return (!is_null($value) && !empty($value)) ? date('H:i:s', $value) : null;
     }
 
     /**
@@ -85,6 +95,6 @@ class String implements IType
      */
     public function getName()
     {
-        return 'string';
+        return 'time';
     }
 }

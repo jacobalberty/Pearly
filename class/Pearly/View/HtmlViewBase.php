@@ -30,7 +30,7 @@ abstract class HtmlViewBase extends ViewBase
      */
     public function __construct(\Pearly\Core\IRegistry &$registry = null, array $auth = array()) {
         parent::__construct($registry, $auth);
-        $this->escapef = function($value) { return htmlspecialchars($value, ENT_COMPAT | ENT_XHTML, 'UTF-8'); };
+        $this->escapef = function($value) { return $value !== null ? htmlspecialchars($value, ENT_COMPAT | ENT_XHTML, 'UTF-8') : null; };
     }
 
     /**
@@ -44,15 +44,35 @@ abstract class HtmlViewBase extends ViewBase
      */
     protected function getcss($css)
     {
-        $csspath = "css/{$css}.css";
-        if (!isset($this->cssheets[$csspath]) && file_exists(CORE_PATH."/{$csspath}")) {
-            $cssts = filemtime(CORE_PATH."/{$csspath}");
-            $this->cssheets[$csspath] = $cssts;
-            $query = $this->registry->staticQuery ? "?{$cssts}" : '' ;
-            return "<link type=\"text/css\" href=\"{$this->registry->site}/{$csspath}{$query}\" rel=\"stylesheet\" />\r\n";
+        $retval = '';
+        $fname = "css/{$css}.css";
+        if (file_exists(CORE_PATH."/css/{$css}.php")) {
+            include CORE_PATH."/css/{$css}.php";
+
+            if (isset($cssheets) && is_array($cssheets)) {
+                foreach ($cssheets as $cssheet) {
+                    $retval .= $this->getcss($cssheet);
+                }
+            }
+
+            if (isset($jscripts) && is_array($jscripts)) {
+                foreach ($jscripts as $jscript) {
+                    $retval .= $this->getjs($jscript);
+                }
+            }
         }
-        return '';
+
+        $csspath = "{$fname}";
+
+        if (!isset($this->cssheets[$csspath]) && file_exists(CORE_PATH."/{$csspath}")) {
+            $cssts = is_readable($csspath) ? '?' . filemtime(CORE_PATH."/{$csspath}") : '';
+            $this->cssheets[$csspath] = $cssts;
+            $query = $this->registry->staticQuery ? $cssts : '' ;
+            $retval .="<link type=\"text/css\" href=\"{$this->registry->site}/{$csspath}{$query}\" rel=\"stylesheet\" />\r\n";
+        }
+        return $retval;
     }
+
 
     /**
      * Javascript helper function.
@@ -288,6 +308,9 @@ abstract class HtmlViewBase extends ViewBase
      */
     protected function makeCrumb($url, $title)
     {
+        if (mb_substr($url, 0, 1) === '?') {
+            $url = '?' . \Html::mquery(html_entity_decode(mb_substr($url, 1)));
+        }
         return <<<HTML
 <a href="{$url}" itemprop="url">
 <span itemprop="title">{$title}</span>

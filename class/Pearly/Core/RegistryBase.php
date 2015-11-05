@@ -9,17 +9,18 @@ namespace Pearly\Core;
 /**
  * This class provides an abstract implementation of the registry providing a few required functions.
  *
- * @property pkg string The name of the package this object is initialized for.
- * @property cfg string The configuration name this object is initialized for.
+ * @property pkg  string The name of the package this object is initialized for.
+ * @property cfg  string The configuration name this object is initialized for.
+ * @property auth string Default authorization module.
  */
 abstract class RegistryBase implements IRegistry
 {
     /**
      * Contains configuration data.
      *
-     * @private
+     * @public
      */
-    protected $conf_data;
+    public $conf_data;
 
     /**
      * @var Array data storage
@@ -103,7 +104,42 @@ abstract class RegistryBase implements IRegistry
     /** @ignore */
     public function getCfg()
     {
-        return isset($_REQUEST['conf']) ? $_REQUEST['conf'] : mb_strtolower($this->Pkg);
+        return \Http::valueFrom($_REQUEST, 'conf', mb_strtolower($this->Pkg));
+    }
+
+    /** @ignore */
+    public function newAuth()
+    {
+        return \Http::valueFrom($this->conf_data['main'], 'auth', '');
+    }
+
+    /** @ignore */
+    public function newLocale()
+    {
+        /**
+         * @todo support a cookie that will override the HTTP_ACCEPT_LANGUAGE data
+         */
+        return \Http::valueFrom($_COOKIE, "{$this->cfg}-locale", $this->blocale);
+    }
+
+    /** @ignore */
+    public function newBLocale()
+    {
+        /**
+         * @todo support a cookie that will override the HTTP_ACCEPT_LANGUAGE data
+         */
+        $def = 'en_US';
+        if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
+            $locales = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+            return str_replace('-', '_', $locales[0]);
+        }
+        return $def;
+    }
+
+    /** @ignore */
+    public function newISO8601()
+    {
+        return \Http::valueFrom($_COOKIE, "{$this->cfg}-iso8601", false) === "1";
     }
 
     /** @ignore */

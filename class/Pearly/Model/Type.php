@@ -6,6 +6,8 @@
  */
 namespace Pearly\Model;
 
+use \Pearly\Core\IRegistry;
+
 /**
  * Type management class.
  */
@@ -13,6 +15,8 @@ class Type
 {
     /** @var array Internal array of supported types. */
     protected static $types = [];
+
+    protected static $registry;
 
     /**
      * Add type function.
@@ -23,7 +27,11 @@ class Type
      */
     public static function addType($name)
     {
-        self::registerType(new $name());
+        if (is_null(self::$registry)) {
+            self::registerType(new $name());
+        } else {
+            self::registerType(new $name(self::$registry));
+        }
     }
 
     /**
@@ -38,6 +46,18 @@ class Type
     public static function getType($name)
     {
         return isset(self::$types[$name]) ? self::$types[$name] : self::$types['string'];
+    }
+
+    /**
+     * Set Registry function.
+     *
+     * This function sets the registry to be used for object construction.
+     *
+     * @param IRegistry $registry The registry to use.
+     */
+    public static function setRegistry(IRegistry &$registry)
+    {
+        self::$registry = $registry;
     }
 
     /**

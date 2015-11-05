@@ -7,17 +7,19 @@
 namespace Pearly\Model\Type;
 
 use Pearly\Model\IType;
+use Pearly\Model\TypeBase;
 
 /**
- * Bool type class
+ * Date type class.
  */
-class Bool implements IType
+class DateType extends TypeBase implements IType
 {
+    protected static $intl;
+
     /**
      * Validate function
      *
-     * This function checks the length of $value against 'maxlength' in $props and returns
-     * a validation error if $value is too long.
+     * The Date type currently does not support any validation.
      *
      * @param mixed  $value Value of the data.
      * @param string $name  This contains either the name of the class or 'dname' if set from $props.
@@ -34,7 +36,7 @@ class Bool implements IType
     /**
      * Convert to display value function.
      *
-     * This function converts the data to a human readable format suitable for display.
+     * This function uses date() to convert the internal timestamp to a human readable date.
      *
      * @param mixed $value The data to be converted
      *
@@ -42,13 +44,23 @@ class Bool implements IType
      */
     public function convertToDisplayValue($value)
     {
-        return $value;
+        if (is_null(self::$intl)) {
+            self::$intl = new \IntlDateFormatter(
+                $this->registry->locale,
+                \IntlDateFormatter::SHORT,
+                \IntlDateFormatter::NONE
+            );
+            if ($this->registry->iso8601) {
+                self::$intl->setPattern('YYYY-MM-dd');
+            }
+        }
+        return (!is_null($value) && !empty($value)) ? self::$intl->format($value) : null;
     }
 
     /**
      * Convert to PHP value function.
      *
-     * This function converts the data suitable for php's internal use.
+     * This function uses strtotime to convert $value into a timestamp to handle internally.
      *
      * @param mixed $value The data to be converted
      *
@@ -56,13 +68,13 @@ class Bool implements IType
      */
     public function convertToPHPValue($value)
     {
-        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        return !is_null($value) ? strtotime($value) : null;
     }
 
     /**
      * Convert to database value function.
      *
-     * This function returns the data in a format suitable for storing in the database.
+     * This function uses date() to convert the internal timestamp to a native database format.
      *
      * @param mixed $value The data to be converted
      *
@@ -70,7 +82,7 @@ class Bool implements IType
      */
     public function convertToDatabaseValue($value)
     {
-        return $value;
+        return (!is_null($value) && !empty($value)) ? date('Y-m-d', $value) : null;
     }
 
     /**
@@ -82,6 +94,6 @@ class Bool implements IType
      */
     public function getName()
     {
-        return 'bool';
+        return 'date';
     }
 }

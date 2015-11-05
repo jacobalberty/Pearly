@@ -1,16 +1,12 @@
 <?php
-define('CORE_PATH', '../');
-require CORE_PATH.'/includes/SplClassLoader.php';
-$classLoader = new SplClassLoader(null, CORE_PATH.'/class');
-$classLoader->register();
-
+include_once "../vendor/autoload.php";
 if (PHP_SAPI == 'cli') {
     if ($argc < 2) {
         die("must be called like: {$argv[0]} <query>" . PHP_EOL);
     }
     $files = $argv[1];
     $tmpdir = isset($argv[2]) ? $argv[2] : '../tmp/';
-    $lib_dir = isset($argv[3]) ? $argv[3] : '../3rdparty/php-closure/lib/';
+    $lib_dir = isset($argv[3]) ? $argv[3] : '../3rdparty/gcc/';
     ob_start();
     optimizejs($files, $tmpdir, $lib_dir);
     ob_end_clean();
@@ -19,39 +15,54 @@ if (PHP_SAPI == 'cli') {
     optimizejs($files);
 }
 
-function optimizejs($files, $tmpdir = '../tmp/', $lib_dir = '../3rdparty/php-closure/lib/') {
-    define('LIB_DIR', $lib_dir);
-    $closurelib = "${lib_dir}third-party/php-closure.php";
-
-    $closure = is_readable($closurelib);
-
+function optimizejs($files, $tmpdir = '../tmp/', $lib_dir = '../3rdparty/gcc/') {
     /** @todo detect java to ensure this will run */
-    $localcompile = is_readable("{$lib_dir}third-party/compiler.jar");
+    $localcompile = is_readable("{$lib_dir}/compiler.jar");
+    $closure = $localcompile;
 
     if ($closure) {
         $tmpdir = is_writable($tmpdir) ? $tmpdir : '/tmp/';
-        include($closurelib);
-        $c = new PhpClosure();
+        $afiles = [];
+        $mtime  = 0;
         foreach(explode('&', $files) as $part) {
             $part = explode('=', $part);
             if ($key = array_shift($part)) {
                 if (empty($part)) {
-                    $c->add("{$key}.js");
+                    $kfn = "{$key}.js";
+                    $afiles[] = $kfn;
+                    $cfmtime = filemtime($kfn);
+                    if ($cfmtime > $mtime) {
+                        $mtime = $cfmtime;
+                    }
                 }
             }
         }
-        if ($localcompile) {
-            $c->localCompile();
+        $hfname = hash('md5', implode($afiles), false) . '.js';
+        $cache_file = "{$tmpdir}/{$hfname}";
+        if (!is_readable($cache_file) || $mtime > filemtime($cache_file)) {
+            $c = new tureki\PhpCc([
+                'java_file'    => '/usr/bin/java -server -XX:+TieredCompilation',
+                'jar_file'     => "{$lib_dir}/compiler.jar",
+                'output_path'  => $tmpdir,
+                'optimization' => 'SIMPLE_OPTIMIZATIONS',
+                'sort'         => false,
+            ]);
+            $c->add($afiles);
+            $c->exec($hfname);
         }
-        $c->cacheDir($tmpdir)
-            ->quiet()
-//            ->whitespaceOnly()
-            ->simpleMode();
-        if ($c->_isRecompileNeeded($c->_getCacheFileName()) && !(PHP_SAPI === 'cli')) {
-            $log = new \Pearly\Core\Logger();
-            $log->warning("Recompiling: {$files}");
+        $cache_mtime = filemtime($cache_file);
+        $etag = md5_file($cache_file);
+        header("Last-Modified: ".gmdate("D, d M Y H:i:s", $cache_mtime)." GMT");
+        header("Etag: $etag");
+        header('Content-Type: text/javascript');
+        if (
+            @strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
+            @trim(@$_SERVER['HTTP_IF_NONE_MATCH']
+        ) == $etag) {
+            header("HTTP/1.1 304 Not Modified");
+        } else {
+            readfile($cache_file);
         }
-        $c->write();
     } else {
         $jsfiles = array();
         foreach(explode('&', $files) as $part) {

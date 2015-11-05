@@ -23,12 +23,13 @@ class Http
      * This function is used to process query strings to ensure the correct package is selected
      * for the resulting link.
      *
-     * @param string $query The query string to process.
-     * @param string $sep   The seperator between parameters.
+     * @param string $query  The query string to process.
+     * @param string $sep    The seperator between parameters.
+     * @param array  $parray Array containing additional parameters to add to the query.
      *
      * @return string a query string to be used in urls.
      */
-    public static function mquery($query, $sep = '&')
+    public static function mquery($query, $sep = '&', array $parray = array())
     {
         $marray = array();
         if (isset($_REQUEST['conf'])) {
@@ -37,7 +38,7 @@ class Http
             $marray['pkg'] = $_REQUEST['pkg'];
         }
             parse_str($query, $qarray);
-            $retval = http_build_query(array_merge($qarray, $marray), 'var_', $sep);
+            $retval = http_build_query(array_merge($qarray, $marray, $parray), 'var_', $sep);
             return $retval;
     }
 
@@ -107,23 +108,49 @@ class Http
      * @param array  $array   The array to search for $key in.
      * @param string $key     The key to search for.
      * @param mixed  $default The default value to return if $key doesn't exist.
+     * @param bool   $logit   Log Type Mismatches.
      *
      * @throws \Pearly\Core\ValidationException if $key is not found and no $default is set.
      *
      * @return either the value of $_array[$key] or $default if $key doesn't exist in $_array
      */
-    public static function valueFrom($array, $key, $default = \Http::PARAM_UNSET)
+    public static function valueFrom($array, $key, $default = \Http::PARAM_UNSET, $logit = true)
     {
+        $ardepth = substr_count($key, '[]');
+        $key = $ardepth !== 0 ? substr($key, 0, -2*$ardepth) : $key;
         if (isset($array[$key])) {
-            return $array[$key];
+            return self::array_process($ardepth, $array[$key], $key, $logit);
         }
         if ($default !== \Http::PARAM_UNSET) {
-            return $default;
+            return (is_object($default) && ($default instanceof Closure)) ? $default() : $default;
         }
         if (isset($array['__NAME__'])) {
             throw new ValidationException("Could not find key: '{$key}' in '{$array['__NAME__']}'", 1);
         } else {
             throw new ValidationException("Could not find key: '{$key}'", 1);
         }
+    }
+
+    private static function array_process($depth, $value, $key, $logit) {
+        $val = $value;
+        $isarray = is_array($val);
+        if ($depth !== 0) {
+            if ($isarray) {
+                return $val;
+            }
+            if ($logit) {
+                $logger = new \Pearly\Core\Logger();
+                $logger->warning("Expected Array for '{$key}' but got " . gettype($val));
+            }
+            return [$val];
+        }
+        if ($isarray && $logit) {
+            $logger = new \Pearly\Core\Logger();
+            $logger->warning("Expected Scalar for '{$key}' but got array");
+        }
+        while (is_array($val)) {
+            $val = array_shift($val);
+        }
+        return $val;
     }
 }
