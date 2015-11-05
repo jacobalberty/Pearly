@@ -4,7 +4,7 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Pearly":         "class/Pearly"
+            "Pearly\\":         "class/Pearly"
         },
         "classmap": [
             "class/Pearly/Http.php",
