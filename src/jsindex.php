@@ -53,7 +53,7 @@ function optimizejs($files, $tmpdir = '../tmp/', $lib_dir = '../3rdparty/gcc/') 
         $cache_mtime = filemtime($cache_file);
         $etag = md5_file($cache_file);
         header("Last-Modified: ".gmdate("D, d M Y H:i:s", $cache_mtime)." GMT");
-        header("Etag: $etag");
+        header("Etag: \"{$etag}\"");
         header('Content-Type: text/javascript');
         if (
             @strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
