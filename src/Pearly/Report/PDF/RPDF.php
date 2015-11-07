@@ -194,4 +194,80 @@ class RPDF extends \fpdi\tfpdf
 
         return $filen;
     }
+
+    /**
+     * Computes the number of lines a MultiCell of width w will take
+     *
+     * @param float  $w   The width of the cell.
+     * @param string $txt The text to fille the cell with.
+     *
+     * @return int The number of lines.
+     */
+    public function NbLines($w, $txt)
+    {
+        $unicode = $this->unifontSubset;
+        //Computes the number of lines a MultiCell of width w will take
+        $cw=&$this->CurrentFont['cw'];
+        if ($w==0) {
+            $w=$this->w-$this->rMargin-$this->x;
+        }
+        $wmax=($w-2*$this->cMargin)*1000/$this->FontSize;
+        $s=str_replace("\r", '', $txt);
+        $nb=$unicode ? mb_strlen($s) : strlen($s);
+        if ($nb>0 and $s[$nb-1]=="\n") {
+            $nb--;
+        }
+        $sep=-1;
+        $i=0;
+        $j=0;
+        $l=0;
+        $nl=1;
+        while ($i<$nb) {
+            $c = $unicode ? mb_substr($s, $i, 1) : $s[$i];
+            if ($c=="\n") {
+                $i++;
+                $sep=-1;
+                $j=$i;
+                $l=0;
+                $nl++;
+                continue;
+            }
+            if ($c==' ') {
+                $sep=$i;
+            }
+            if ($unicode) {
+                $uniar = $this->UTF8StringToArray($c);
+                $c = $uniar[0];
+                if (isset($cw[$c])) {
+                    $l += (ord($cw[2 * $c]) << 8) + ord($cw[2 * $c + 1]);
+                } else if ($c > 0 && $c < 128 && isset($cw[chr($c)])) {
+                    $l += $cw[chr($c)];
+                } else if (isset($this->CurrentFont['desc']['MissingWidth'])) {
+                    $l += $this->CurrentFont['desc']['MissingWidth'];
+                } else if (isset($this->CurrentFont['MissingWidth'])) {
+                    $l += $this->CurrentFont['MissingWidth'];
+                } else {
+                    $l += 500;
+                }
+            } else {
+                $l+=$cw[$c];
+            }
+            if ($l>$wmax) {
+                if ($sep==-1) {
+                    if ($i==$j) {
+                        $i++;
+                    }
+                } else {
+                    $i=$sep+1;
+                }
+                $sep=-1;
+                $j=$i;
+                $l=0;
+                $nl++;
+            } else {
+                $i++;
+            }
+        }
+        return $nl;
+    }
 }
