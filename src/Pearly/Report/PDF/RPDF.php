@@ -13,7 +13,7 @@ namespace Pearly\Report\PDF;
  *
  * This class implements any features necessary for the reporting engine.
  */
-class RPDF extends \fpdf\FPDF
+class RPDF extends \fpdi\tfpdf
 {
     /** @var callback Footer callback to allow defining a footer without inheriting from this class */
     public $cFooter = null;

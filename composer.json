@@ -19,8 +19,8 @@
         "files": [ "src/functions.inc.php" ]
     },
     "require": {
-        "itbz/fpdf": "^1.7",
         "psr/log": "^1.0",
-        "tureki/phpcc": "dev-sortfix"
+        "tureki/phpcc": "dev-sortfix",
+        "istom1n/fpdi-tfpdf": "^1.0"
     }
 }
