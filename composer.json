@@ -1,5 +1,6 @@
 {
     "name": "jacobalberty/pearly",
+    "description": "Pearly is a lightweight modular php framework to allow you to load multiple Pearly applications with a single installation.",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "repositories": [
@@ -19,6 +20,9 @@
         "files": [ "src/functions.inc.php" ]
     },
     "require": {
+        "php": ">=5.4.0",
+        "ext-mbstring": "*",
+        "ext-intl": "*",
         "psr/log": "^1.0",
         "tureki/phpcc": "dev-sortfix",
         "istom1n/fpdi-tfpdf": "^1.0"
