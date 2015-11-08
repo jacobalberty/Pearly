@@ -23,7 +23,7 @@ if (!defined('CORE_PATH')) {
 }
 include_once './vendor/autoload.php';
 
-$logger = new \Pearly\Core\Logger();
+$logger = \Pearly\Factory\LoggerFactory::build();
 
 $eh = new \Pearly\Core\ExceptionHandler();
 $eh->setLogger($logger);

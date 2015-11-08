@@ -139,13 +139,13 @@ class Http
                 return $val;
             }
             if ($logit) {
-                $logger = new \Pearly\Core\Logger();
+                $logger = \Pearly\Factory\LoggerFactory::build();
                 $logger->warning("Expected Array for '{$key}' but got " . gettype($val));
             }
             return [$val];
         }
         if ($isarray && $logit) {
-            $logger = new \Pearly\Core\Logger();
+            $logger = \Pearly\Factory\LoggerFactory::build();
             $logger->warning("Expected Scalar for '{$key}' but got array");
         }
         while (is_array($val)) {

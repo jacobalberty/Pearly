@@ -41,7 +41,7 @@ abstract class ControllerBase extends Base implements IController
      */
     public function __construct(IRegistry &$registry = null, array $auth = array(), LoggerInterface $logger = null)
     {
-        $this->logger = is_null($logger) ? new \Pearly\Core\Logger() : $logger;
+        $this->logger = is_null($logger) ? \Pearly\Factory\LoggerFactory::build() : $logger;
         $classname = get_class($this);
         if (preg_match('@\\\\([\w]+)$@', $classname, $matches)) {
             $classname = $matches[1];
