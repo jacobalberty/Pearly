@@ -1,6 +1,15 @@
 {
     "name": "jacobalberty/pearly",
     "description": "Pearly is a lightweight modular php framework to allow you to load multiple Pearly applications with a single installation.",
+    "homepage": "https://github.com/jacobalberty/Pearly",
+    "license": "MIT",
+    "authors": {
+        {
+            "name": "Jacob Alberty",
+            "homepage": "https://github.com/jacobalberty",
+            "role": "Developer"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
