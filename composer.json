@@ -3,12 +3,6 @@
     "description": "Pearly is a lightweight modular php framework to allow you to load multiple Pearly applications with a single installation.",
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/jacobalberty/php-closure-compiler.git"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "Pearly\\":         "src/Pearly"
@@ -24,7 +18,7 @@
         "ext-mbstring": "*",
         "ext-intl": "*",
         "psr/log": "^1.0",
-        "tureki/phpcc": "dev-sortfix",
+        "tureki/phpcc": "dev-master",
         "istom1n/fpdi-tfpdf": "^1.0"
     }
 }
