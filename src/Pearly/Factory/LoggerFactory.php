@@ -17,6 +17,11 @@ class LoggerFactory
 
     public static function build()
     {
+        $registry = self::$registry;
+        if (($registry instanceof \Pearly\Core\IRegistry) && class_exists("\\{$registry->pkg}\\Factory\\LoggerFactory")) {
+            $lfn = "\\{$registry->pkg}\\Factory\\LoggerFactory";
+            return $lfn::build();
+        }
         return new \Pearly\Core\Logger();
     }
 }
