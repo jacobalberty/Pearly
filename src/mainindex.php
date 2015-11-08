@@ -24,5 +24,6 @@ if (!defined('CORE_PATH')) {
 include_once './vendor/autoload.php';
 
 set_error_handler("exception_error_handler", E_ALL);
+setTimeZone("America/Chicago");
 $router = new \Pearly\Core\Router();
 $router->invoke();
