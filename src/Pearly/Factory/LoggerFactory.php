@@ -13,6 +13,8 @@ namespace Pearly\Factory;
  */
 class LoggerFactory
 {
+    public static $registry = null;
+
     public static function build()
     {
         return new \Pearly\Core\Logger();

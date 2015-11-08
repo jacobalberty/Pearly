@@ -23,12 +23,6 @@ if (!defined('CORE_PATH')) {
 }
 include_once './vendor/autoload.php';
 
-$logger = \Pearly\Factory\LoggerFactory::build();
-
-$eh = new \Pearly\Core\ExceptionHandler();
-$eh->setLogger($logger);
-$eh->register();
-
 set_error_handler("exception_error_handler", E_ALL);
 setTimeZone("America/Chicago");
 $router = new \Pearly\Core\Router();

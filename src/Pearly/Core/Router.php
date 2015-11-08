@@ -7,6 +7,7 @@
 namespace Pearly\Core;
 
 use Pearly\Factory\ControllerFactory;
+use Pearly\Factory\LoggerFactory;
 use Pearly\Factory\ViewFactory;
 use Pearly\Session;
 use Pearly\Model\Type;
@@ -54,6 +55,8 @@ class Router extends Base
      * Including:
      * <ol>
      * <li>Debug Initialization.</li>
+     * <li>Initialize Logger.</li>
+     * <li>Exception Handling.</li>
      * <li>Session Configuration.</li>
      * <li>Type Initialization.</li>
      * <li>Controller routing and redirection.</li>
@@ -76,6 +79,16 @@ class Router extends Base
             ini_set('xdebug.remote_enable', 'On');
             ini_set('xdebug.default_enable', 1);
         }
+
+        // Initialize Logger.
+        LoggerFactory::$registry = $this->registry;
+
+        // Exception Handling.
+        $logger = \Pearly\Factory\LoggerFactory::build();
+
+        $eh = new \Pearly\Core\ExceptionHandler();
+        $eh->setLogger(LoggerFactory::build());
+        $eh->register();
 
         // Session Configuration.
         Session::setName(hash('crc32', CORE_PATH.'/'.$this->registry->cfg));
