@@ -426,7 +426,7 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
         $result = array();
         foreach ($this->values as $key => $value) {
             if (!array_key_exists($key, $this->origValues) || $this->origValues[$key] != $value) {
-                $result[$key] = $value;
+                $result[$key] = $this->$key;
             }
         }
 
