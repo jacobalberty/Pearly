@@ -217,7 +217,7 @@ class RPDF extends \fpdi\tfpdf
      *
      * @return int The number of lines.
      */
-    public function bLines($w, $txt)
+    public function nbLines($w, $txt)
     {
         $unicode = $this->unifontSubset;
         //Computes the number of lines a MultiCell of width w will take
