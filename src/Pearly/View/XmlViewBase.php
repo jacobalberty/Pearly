@@ -20,11 +20,14 @@ abstract class XmlViewBase extends ViewBase
     /**
      * Function to create and display the xml data.
      *
-     * This function takes the created array transforms it to xml then outputs it to the web browser. 
+     * This function takes the created array transforms it to xml then outputs it to the web browser.
      */
     public function invoke()
     {
-        $this->escapef = function($value) {return htmlspecialchars($value, ENT_XML1, 'UTF-8');};
+        $this->escapef = function ($value) {
+            return htmlspecialchars($value, ENT_XML1, 'UTF-8');
+
+        };
         $this->create();
 
         $data = $this->data;
@@ -50,7 +53,7 @@ abstract class XmlViewBase extends ViewBase
             }
             if (is_array($value)) {
                 $xml .= "<$element>" . $this->array2xml($value) . "</$element>\r\n";
-            } elseif (is_object($value) && $value instanceOf \Iterator) {
+            } elseif (is_object($value) && $value instanceof \Iterator) {
                 $xml .= "<$element>" . $this->array2xml(iterator_to_array($value)) . "</$element>\r\n";
             } elseif ($value == '') {
                 $xml .= "<$element />";

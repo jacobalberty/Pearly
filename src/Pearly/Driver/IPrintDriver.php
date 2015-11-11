@@ -7,7 +7,7 @@
 namespace Pearly\Driver;
 
 /**
- * This defines an interface for handlers to use for outputing pdf reports, for ex to the screen or to a cups printer. 
+ * This defines an interface for handlers to use for outputing pdf reports, for ex to the screen or to a cups printer.
  */
 interface IPrintDriver
 {

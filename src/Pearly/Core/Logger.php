@@ -71,7 +71,7 @@ class Logger extends Log\AbstractLogger
                         if (!empty($_SERVER['REMOTE_ADDR'])) {
                             $client .= "[proxy {$_SERVER['REMOTE_ADDR']}] ";
                         }
-                    } else if (!empty($_SERVER['REMOTE_ADDR'])) {
+                    } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
                         $client = "[client {$_SERVER['REMOTE_ADDR']}] ";
                     }
 

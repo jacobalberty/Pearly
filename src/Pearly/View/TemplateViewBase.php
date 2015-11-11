@@ -62,7 +62,7 @@ abstract class TemplateViewBase extends HtmlViewBase
                 } else {
                     foreach ($keys as $key) {
                         $data[$key] = $this->vars[$key];
-                     }
+                    }
                 }
 
                 if (is_array($this->messages)) {

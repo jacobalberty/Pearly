@@ -111,10 +111,10 @@ class Router extends Base
             $url = $cinst->invoke($aname, $f_arr);
             if (mb_substr($url, 0, 1) == '?') {
                 $parray = $_POST;
-                $preg_grep_keys = function ($pattern, $input, $flags = 0)
-                    {
+                $preg_grep_keys = function ($pattern, $input, $flags = 0) {
+                    
                         return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
-                    };
+                };
                 $parray = $preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
 
                 $url = '?' . \Http::mquery(mb_substr($url, 1), '&', $parray);

@@ -32,10 +32,11 @@ class Html
      *
      * @param string $name The name and id of the html element.
      * @param boolean $ischecked An expession that evaluates to true or false.
-     * @param Array $attributes An optional keyed array containing additional html attributes to be given to the element.
+     * @param Array $attributes
+     *  An optional keyed array containing additional html attributes to be given to the element.
      * @return string A string containing the generated html.
      */
-    public static function CheckBox($name, $ischecked, Array $attributes = null)
+    public static function checkBox($name, $ischecked, Array $attributes = null)
     {
         if ($ischecked) {
             $attributes['checked'] = 'checked';
@@ -52,7 +53,7 @@ class Html
      * @param Array $attributes A keyed array containing html attributes to be given to the element.
      * @return string A string containing the generated html.
      */
-    public static function Input($attributes = null)
+    public static function input($attributes = null)
     {
         $attr = '';
         foreach ($attributes as $k => $v) {
@@ -67,13 +68,20 @@ class Html
      *
      * @param string $name The name and id of the html element.
      * @param Array $values A keyed array containing the values to include in the list.
-     * @param string $blank If this does not evaluate to false then the contents will be provided as a "blank" default option.
+     * @param string $blank
+     *  If this does not evaluate to false then the contents will be provided as a "blank" default option.
      * @param string $match Optional value to have selected by default.
-     * @param Array $attributes an optional keyed array containing additional html attributes to be given to the element.
+     * @param Array $attributes
+     *  an optional keyed array containing additional html attributes to be given to the element.
      * @return string A string containing the generated html.
      */
-    public static function DropDownList($name, $values = array(), $blank = false, $match = null, array $attributes = array())
-    {
+    public static function dropDownList(
+        $name,
+        $values = array(),
+        $blank = false,
+        $match = null,
+        array $attributes = array()
+    ) {
         $result = null;
         $term = "\r\n";
         $attr = '';

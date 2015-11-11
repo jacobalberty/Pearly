@@ -28,9 +28,13 @@ abstract class HtmlViewBase extends ViewBase
      * @param \Pearly\Core\IRegistry $registry
      * @param Array $auth array containing acl for views and controllers.
      */
-    public function __construct(\Pearly\Core\IRegistry &$registry = null, array $auth = array()) {
+    public function __construct(\Pearly\Core\IRegistry &$registry = null, array $auth = array())
+    {
         parent::__construct($registry, $auth);
-        $this->escapef = function($value) { return $value !== null ? htmlspecialchars($value, ENT_COMPAT | ENT_XHTML, 'UTF-8') : null; };
+        $this->escapef = function ($value) {
+            return $value !== null ? htmlspecialchars($value, ENT_COMPAT | ENT_XHTML, 'UTF-8') : null;
+
+        };
     }
 
     /**
@@ -68,7 +72,8 @@ abstract class HtmlViewBase extends ViewBase
             $cssts = is_readable($csspath) ? '?' . filemtime(CORE_PATH."/{$csspath}") : '';
             $this->cssheets[$csspath] = $cssts;
             $query = $this->registry->staticQuery ? $cssts : '' ;
-            $retval .="<link type=\"text/css\" href=\"{$this->registry->site}/{$csspath}{$query}\" rel=\"stylesheet\" />\r\n";
+            $retval .= "<link type=\"text/css\""
+            . " href=\"{$this->registry->site}/{$csspath}{$query}\" rel=\"stylesheet\" />\r\n";
         }
         return $retval;
     }
@@ -244,7 +249,8 @@ abstract class HtmlViewBase extends ViewBase
 
         $hac = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en-US';
         /**
-         * code to autonegotiate the localization based on BSD licensed code from http://www.dyeager.org/blog/2008/10/getting-browser-default-language-php.html
+         * code to autonegotiate the localization based on BSD licensed code from
+         * http://www.dyeager.org/blog/2008/10/getting-browser-default-language-php.html
          */
         if (!empty($hac)) {
             $x = explode(",", $hac);
@@ -331,8 +337,9 @@ HTML;
     }
 
     /**
-     * This function detects application/xhtml+xml support in the browser and either sends the document with the proper application/xhtml+xml mimetype or
-     * automatically converts valid xhtml to regular html and sends the document as text/html.
+     * This function detects application/xhtml+xml support in the browser and either sends the document with
+     * the proper application/xhtml+xml mimetype or automatically converts valid xhtml to regular html
+     * and sends the document as text/html.
      */
     protected function xmlHead()
     {
@@ -354,8 +361,13 @@ HTML;
         }
         if ($mime == "application/xhtml+xml") {
             ob_start();
-            $prolog_type = "<?xml version=\"1.0\" encoding=\"$charset\" ?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"
-\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<html class=\"no-js\" lang=\"en\" xml:lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\" >\n";
+            $prolog_type = <<<XML
+<?xml version="1.0" encoding="{$charset}" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html class="no-js" lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" >
+
+XML;
         } else {
             ob_start(array(get_class($this), "fixCode"));
             $prolog_type = "<!DOCTYPE html>\n<html class=\"no-js\" lang=\"en\">\n";

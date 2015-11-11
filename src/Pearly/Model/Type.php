@@ -49,7 +49,7 @@ class Type
         if (!isset(self::$types[$name])) {
             if (class_exists("\\{$pkg}\\Model\\Type\\{$name}Type")) {
                 self::addType("\\{$pkg}\\Model\\Type\\{$name}Type");
-            } else if (class_exists("\\Pearly\\Model\\Type\\{$name}Type")) {
+            } elseif (class_exists("\\Pearly\\Model\\Type\\{$name}Type")) {
                 self::addType("\\Pearly\\Model\\Type\\{$name}Type");
             }
         }

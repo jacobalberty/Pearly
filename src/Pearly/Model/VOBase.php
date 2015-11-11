@@ -356,7 +356,8 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
      * Valid.
      *
      * This method checks if the current position is valid.
-     * @return boolean The return value will be casted to boolean and then evaluated. Returns TRUE on success or FALSE on failure.
+     * @return boolean The return value will be casted to boolean and then evaluated.
+     *  Returns TRUE on success or FALSE on failure.
      */
     public function valid()
     {
@@ -392,7 +393,10 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
         $this->props = $arr['props'];
         $this->values = $arr['values'];
         $this->mode = $arr['mode'];
-        $this->setEscape(function($value) { return $value; });
+        $this->setEscape(function ($value) {
+            return $value;
+
+        });
         foreach ($this->props as $k => $v) {
             unset($this->$k);
         }

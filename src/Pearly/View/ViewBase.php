@@ -39,9 +39,15 @@ abstract class ViewBase extends \Pearly\Core\Base implements IView
         if (preg_match('@\\\\([\w]+)$@', $classname, $matches)) {
             $classname = $matches[1];
         }
-        $this->authorized = (isset($auth['default']) && is_bool($auth['default'])) ? $auth['default'] : $this->authorized;
-        $this->authorized = (isset($auth['viewdefault']) && is_bool($auth['viewdefault'])) ? $auth['viewdefault'] : $this->authorized;
-        $this->authorized = (isset($auth[$classname]) && is_bool($auth[$classname])) ? $auth[$classname] : $this->authorized;
+        $this->authorized = (isset($auth['default']) && is_bool($auth['default']))
+            ? $auth['default']
+            : $this->authorized;
+        $this->authorized = (isset($auth['viewdefault']) && is_bool($auth['viewdefault']))
+            ? $auth['viewdefault']
+            : $this->authorized;
+        $this->authorized = (isset($auth[$classname]) && is_bool($auth[$classname]))
+            ? $auth[$classname]
+            : $this->authorized;
 
         $messages = new Session\Member('messages');
         $this->messages = $messages->apply('array_merge', $this->messages);

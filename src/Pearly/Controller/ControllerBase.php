@@ -46,9 +46,12 @@ abstract class ControllerBase extends Base implements IController
         if (preg_match('@\\\\([\w]+)$@', $classname, $matches)) {
             $classname = $matches[1];
         }
-        $this->authorized = (isset($auth['default']) && is_bool($auth['default'])) ? $auth['default'] : $this->authorized;
-        $this->authorized = (isset($auth['controllerdefault']) && is_bool($auth['controllerdefault'])) ? $auth['controllerdefault'] : $this->authorized;
-        $this->authorized = (isset($auth[$classname]) && is_bool($auth[$classname])) ? $auth[$classname] : $this->authorized;
+        $this->authorized = (isset($auth['default']) && is_bool($auth['default']))
+            ? $auth['default'] : $this->authorized;
+        $this->authorized = (isset($auth['controllerdefault']) && is_bool($auth['controllerdefault']))
+            ? $auth['controllerdefault'] : $this->authorized;
+        $this->authorized = (isset($auth[$classname]) && is_bool($auth[$classname]))
+            ? $auth[$classname] : $this->authorized;
 
         $this->back = '?' . $_SERVER['QUERY_STRING'];
 
@@ -120,10 +123,10 @@ abstract class ControllerBase extends Base implements IController
 
             /** @todo Refactor this */
             $parray = $_POST;
-            $preg_grep_keys = function ($pattern, $input, $flags = 0)
-                {
+            $preg_grep_keys = function ($pattern, $input, $flags = 0) {
+                
                     return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
-                };
+            };
             $parray = $preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
             $query = parse_url($url, PHP_URL_QUERY);
             if ($query) {

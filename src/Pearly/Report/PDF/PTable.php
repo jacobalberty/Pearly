@@ -44,7 +44,7 @@ class PTable
      *
      * @param Array $data array containing the row to draw.
      */
-    public function Row($data, $border = true)
+    public function row($data, $border = true)
     {
         //Calculate the height of the row
         $nb=0;
@@ -82,7 +82,7 @@ class PTable
      *
      * @param float $h height of the row to be drawn.
      */
-    private function CheckPageBreak($h)
+    private function checkPageBreak($h)
     {
         if ($this->pdf->GetY()+$h>$this->pdf->PageBreakTrigger) {
             $this->pdf->AddPage($this->pdf->CurOrientation);

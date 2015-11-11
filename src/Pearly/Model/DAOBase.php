@@ -52,7 +52,7 @@ class DAOBase extends Base implements IDAO
     protected function getVO($type)
     {
         $vo = call_user_func_array(array($this->vofactory, 'build'), func_get_args());
-        if (isset($this->escapef) && is_callable($this->escapef)){
+        if (isset($this->escapef) && is_callable($this->escapef)) {
             $vo->setEscape($this->escapef);
         }
         return $vo;

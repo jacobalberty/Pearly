@@ -4,7 +4,6 @@
  *
  * @author    Jacob Alberty <jacob.alberty@gmail.com>
  */
-
 use Pearly\Core\ValidationException;
 
 /**
@@ -119,7 +118,7 @@ class Http
         $ardepth = substr_count($key, '[]');
         $key = $ardepth !== 0 ? substr($key, 0, -2*$ardepth) : $key;
         if (isset($array[$key])) {
-            return self::array_process($ardepth, $array[$key], $key, $logit);
+            return self::arrayProcess($ardepth, $array[$key], $key, $logit);
         }
         if ($default !== \Http::PARAM_UNSET) {
             return (is_object($default) && ($default instanceof Closure)) ? $default() : $default;
@@ -131,7 +130,8 @@ class Http
         }
     }
 
-    private static function array_process($depth, $value, $key, $logit) {
+    private static function arrayProcess($depth, $value, $key, $logit)
+    {
         $val = $value;
         $isarray = is_array($val);
         if ($depth !== 0) {

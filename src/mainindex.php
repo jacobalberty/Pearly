@@ -2,7 +2,7 @@
 /**
  * Pearly 1.0
  *
- * @author	Jacob Alberty <jacob.alberty@gmail.com>
+ * @author  Jacob Alberty <jacob.alberty@gmail.com>
  */
 if (get_magic_quotes_gpc()) {
     die('Please ensure magic_quotes_gpc is set to off in your php.ini');
@@ -15,13 +15,8 @@ if (ini_get('register_globals')) {
 mb_internal_encoding('UTF-8');
 mb_http_output('UTF-8');
 
-/**
- * Path to root installation directory
- */
-if (!defined('CORE_PATH')) {
-    define('CORE_PATH', __DIR__);
-}
 include_once './vendor/autoload.php';
+include_once 'mainconst.php';
 
 set_error_handler("exception_error_handler", E_ALL);
 setTimeZone("America/Chicago");

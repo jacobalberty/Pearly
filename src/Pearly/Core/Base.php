@@ -13,7 +13,10 @@ use Pearly\Factory\RegistryFactory;
  */
 abstract class Base implements IBase
 {
-    /** @var Registry This variable contains the global registry instance passed down from the class instantiating this class. */
+    /**
+     * @var Registry This variable contains the global registry instance
+     * passed down from the class instantiating this class.
+     */
     protected $registry;
 
     /**

@@ -90,7 +90,7 @@ abstract class RegistryBase implements IRegistry
     public function __wakeup()
     {
         foreach ($this->objlist as $obj) {
-            unset ($this->vars[$obj]);
+            unset($this->vars[$obj]);
         }
         $this->objlist = array();
     }
@@ -129,7 +129,7 @@ abstract class RegistryBase implements IRegistry
          * @todo support a cookie that will override the HTTP_ACCEPT_LANGUAGE data
          */
         $def = 'en_US';
-        if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
+        if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
             $locales = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
             return str_replace('-', '_', $locales[0]);
         }
@@ -145,6 +145,7 @@ abstract class RegistryBase implements IRegistry
     /** @ignore */
     protected function newStaticQuery()
     {
-        return !isset($this->conf_data['main']['staticquery']) || filter_var($this->conf_data['main']['staticquery'], FILTER_VALIDATE_BOOLEAN);
+        return !isset($this->conf_data['main']['staticquery'])
+            || filter_var($this->conf_data['main']['staticquery'], FILTER_VALIDATE_BOOLEAN);
     }
 }
