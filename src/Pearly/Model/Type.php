@@ -47,10 +47,10 @@ class Type
     {
         $pkg = self::$registry->pkg;
         if (!isset(self::$types[$name])) {
-            if (class_exists("\\Pearly\\Model\\Type\\{$name}Type")) {
-                self::addType("\\Pearly\\Model\\Type\\{$name}Type");
-            } else if (class_exists("\\{$pkg}\\Model\\Type\\{$name}Type")) {
+            if (class_exists("\\{$pkg}\\Model\\Type\\{$name}Type")) {
                 self::addType("\\{$pkg}\\Model\\Type\\{$name}Type");
+            } else if (class_exists("\\Pearly\\Model\\Type\\{$name}Type")) {
+                self::addType("\\Pearly\\Model\\Type\\{$name}Type");
             }
         }
         return isset(self::$types[$name]) ? self::$types[$name] : self::$types['string'];
