@@ -34,7 +34,7 @@ class Pearly
 
     public static function exceptionErrorHandler($errno, $errstr, $errfile, $errline)
     {
-        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+        throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
     }
 
     private static function setTimezone($default)
