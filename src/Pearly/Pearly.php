@@ -92,7 +92,7 @@ class Pearly
             $hfname = hash('md5', implode($afiles), false) . '.js';
             $cache_file = "{$tmpdir}/{$hfname}";
             if (!is_readable($cache_file) || $mtime > filemtime($cache_file)) {
-                $c = new tureki\PhpCc([
+                $c = new \tureki\PhpCc([
                 'java_file'    => '/usr/bin/java -server -XX:+TieredCompilation',
                 'jar_file'     => "{$lib_dir}/compiler.jar",
                 'output_path'  => $tmpdir,
