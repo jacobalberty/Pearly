@@ -227,6 +227,8 @@ abstract class HtmlViewBase extends ViewBase
                 $this->$funcName();
             } catch (\Exception $e) {
                 echo "Error: Unhandled exception caught, please check logs.";
+                $logger = \Pearly\Factory\LoggerFactory::build();
+                $logger->error($e);
             }
         }
         $funcName = "sect{$section}";
@@ -235,6 +237,8 @@ abstract class HtmlViewBase extends ViewBase
                 $this->$funcName();
             } catch (\Exception $e) {
                 echo "Error: Unhandled exception caught, please check logs.";
+                $logger = \Pearly\Factory\LoggerFactory::build();
+                $logger->error($e);
             }
         }
     }
