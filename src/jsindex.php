@@ -1,6 +1,19 @@
 <?php
-include_once "../vendor/autoload.php";
+$included = include file_exists(__DIR__ . '/../vendor/autoload.php')
+    ? __DIR__ . '/../vendor/autoload.php'
+    : __DIR__ . '/../../../autoload.php';
+
 include_once "jsfunctions.php";
+
+if (! $included) {
+    header('Content-Type: text/javascript');
+    echo "alert('You must set up the project dependencies, run the following commands:\\n"
+       . "curl -sS https://getcomposer.org/installer | php\\n"
+       . "php composer.phar install')";
+
+    exit(1);
+}
+
 if (PHP_SAPI == 'cli') {
     if ($argc < 2) {
         die("must be called like: {$argv[0]} <query>" . PHP_EOL);
