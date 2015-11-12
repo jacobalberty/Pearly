@@ -223,11 +223,19 @@ abstract class HtmlViewBase extends ViewBase
         }
         $funcName = "def{$section}";
         if (is_callable(array($this, $funcName))) {
-            $this->$funcName();
+            try {
+                $this->$funcName();
+            } catch (\Exception $e) {
+                echo "Error: Unhandled exception caught, please check logs.";
+            }
         }
         $funcName = "sect{$section}";
         if (is_callable(array($this, $funcName))) {
-            $this->$funcName();
+            try {
+                $this->$funcName();
+            } catch (\Exception $e) {
+                echo "Error: Unhandled exception caught, please check logs.";
+            }
         }
     }
 
