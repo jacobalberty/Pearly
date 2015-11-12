@@ -8,7 +8,7 @@ namespace Pearly;
 
 class Pearly
 {
-    public static function run()
+    public static function run($dir = __DIR__)
     {
         if (get_magic_quotes_gpc()) {
             die('Please ensure magic_quotes_gpc is set to off in your php.ini');
@@ -22,7 +22,7 @@ class Pearly
         mb_http_output('UTF-8');
 
         if (!defined('CORE_PATH')) {
-            define('CORE_PATH', __DIR__);
+            define('CORE_PATH', $dir);
         }
 
         set_error_handler('\Pearly\Pearly::exceptionErrorHandler', E_ALL);
