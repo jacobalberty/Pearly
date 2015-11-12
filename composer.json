@@ -20,7 +20,7 @@
             "src/Http.php",
             "src/Html.php"
         ],
-        "files": [ "src/functions.inc.php" ]
+        "files": [ "src/functions.inc.php"]
     },
     "require": {
         "php": ">=5.4.0",
