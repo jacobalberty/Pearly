@@ -107,7 +107,6 @@ class Pearly
             header('Content-Type: text/javascript');
             header("Last-Modified: ".gmdate("D, d M Y H:i:s", $cache_mtime)." GMT");
             header("Etag: \"{$etag}\"");
-            header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + (60 * 5)));
             if (@strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
             @trim(@$_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
                 header("HTTP/1.1 304 Not Modified");
