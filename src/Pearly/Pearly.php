@@ -89,7 +89,9 @@ class Pearly
                     }
                 }
             }
+            header('Content-Type: text/javascript');
             $hfname = hash('md5', implode($afiles), false) . '.js';
+            ob_start();
             $cache_file = "{$tmpdir}/{$hfname}";
             if (!is_readable($cache_file) || $mtime > filemtime($cache_file)) {
                 $c = new \tureki\PhpCc([
@@ -100,19 +102,26 @@ class Pearly
                 'sort'         => false,
                 ]);
                 $c->add($afiles);
-                $c->exec($hfname);
+                $ret = $c->exec($hfname);
+                if ($ret['status'] !== 0) {
+                    foreach ($ret['out'] as $out) {
+                        echo "console.error('" . str_replace("'", "\\'", $out) . "');" . PHP_EOL;
+                    }
+                }
             }
-            $cache_mtime = filemtime($cache_file);
-            $etag = md5_file($cache_file);
-            header('Content-Type: text/javascript');
-            header("Last-Modified: ".gmdate("D, d M Y H:i:s", $cache_mtime)." GMT");
-            header("Etag: \"{$etag}\"");
-            if (@strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
-            @trim(@$_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
-                header("HTTP/1.1 304 Not Modified");
-            } else {
-                readfile($cache_file);
+            if (is_readable($cache_file)) {
+                $cache_mtime = filemtime($cache_file);
+                $etag = md5_file($cache_file);
+                header("Last-Modified: ".gmdate("D, d M Y H:i:s", $cache_mtime)." GMT");
+                header("Etag: \"{$etag}\"");
+                if (@strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
+                @trim(@$_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
+                    header("HTTP/1.1 304 Not Modified");
+                } else {
+                    readfile($cache_file);
+                }
             }
+            ob_end_flush();
         } else {
             $jsfiles = array();
             foreach (explode('&', $files) as $part) {
