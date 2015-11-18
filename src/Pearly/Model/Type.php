@@ -18,6 +18,8 @@ class Type
 
     protected static $registry;
 
+    protected static $pkg;
+
     /**
      * Add type function.
      *
@@ -34,6 +36,7 @@ class Type
         }
     }
 
+
     /**
      * Get type function.
      *
@@ -45,7 +48,7 @@ class Type
      */
     public static function getType($name)
     {
-        $pkg = self::$registry->pkg;
+        $pkg = self::$pkg;
         if (!isset(self::$types[$name])) {
             if (class_exists("\\{$pkg}\\Model\\Type\\{$name}Type")) {
                 self::addType("\\{$pkg}\\Model\\Type\\{$name}Type");
@@ -66,6 +69,7 @@ class Type
     public static function setRegistry(IRegistry &$registry)
     {
         self::$registry = $registry;
+        self::$pkg = $registry->pkg;
     }
 
     /**
