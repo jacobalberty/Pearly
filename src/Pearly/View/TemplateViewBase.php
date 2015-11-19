@@ -59,9 +59,18 @@ abstract class TemplateViewBase extends HtmlViewBase
 
                 if (empty($keys)) {
                     $data = $this->vars;
+                    array_walk($data, function(&$val, $key) {
+                        if (is_object($val) && $val instanceof \Traversable) {
+                            $val = iterator_to_array($val);
+                        }
+                    });
                 } else {
                     foreach ($keys as $key) {
-                        $data[$key] = $this->vars[$key];
+                        $val = $this->vars[$key];
+                        if (is_object($val) && $val instanceof \Traversable) {
+                            $val = iterator_to_array($val);
+                        }
+                        $data[$key] = $val;
                     }
                 }
 
