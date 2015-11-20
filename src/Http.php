@@ -105,7 +105,7 @@ class Http
      * If it does it returns the value, if not it returns $default.
      *
      * @param array  $array   The array to search for $key in.
-     * @param string $key     The key to search for.
+     * @param string|array $keyp Either a string containing the name of the key or an array describing the key and its values.
      * @param mixed  $default The default value to return if $key doesn't exist.
      * @param bool   $logit   Log Type Mismatches.
      *
@@ -113,12 +113,22 @@ class Http
      *
      * @return either the value of $_array[$key] or $default if $key doesn't exist in $_array
      */
-    public static function valueFrom($array, $key, $default = \Http::PARAM_UNSET, $logit = true)
+    public static function valueFrom($array, $keyp, $default = \Http::PARAM_UNSET, $logit = true)
     {
+        $nullable = false;
+        if (is_array($keyp)) {
+            if (!isset($keyp['key'])) {
+                throw new \Exception('Could not find name of key');
+            }
+            $nullable = isset($keyp['nullable']) ? $keyp['nullable'] : false;
+            $key = $keyp['key'];
+        } else {
+            $key = $keyp;
+        }
         $ardepth = substr_count($key, '[]');
         $key = $ardepth !== 0 ? substr($key, 0, -2*$ardepth) : $key;
         if (isset($array[$key])) {
-            return self::arrayProcess($ardepth, $array[$key], $key, $logit);
+            return self::arrayProcess($ardepth, $array[$key], $key, $logit, $nullable);
         }
         if ($default !== \Http::PARAM_UNSET) {
             return (is_object($default) && ($default instanceof Closure)) ? $default() : $default;
@@ -130,7 +140,7 @@ class Http
         }
     }
 
-    private static function arrayProcess($depth, $value, $key, $logit)
+    private static function arrayProcess($depth, $value, $key, $logit, $nullable = false)
     {
         $val = $value;
         $isarray = is_array($val);
@@ -151,6 +161,6 @@ class Http
         while (is_array($val)) {
             $val = array_shift($val);
         }
-        return $val;
+        return $nullable && empty($val) ? null : $val;
     }
 }
