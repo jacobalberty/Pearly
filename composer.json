@@ -27,7 +27,7 @@
         "ext-mbstring": "*",
         "ext-intl": "*",
         "psr/log": "^1.0",
-        "tureki/phpcc": "dev-master",
+        "tureki/phpcc": ">=1.0.5",
         "istom1n/fpdi-tfpdf": "^1.0"
     }
 }
