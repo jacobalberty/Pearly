@@ -54,6 +54,7 @@ class Pearly
         if (!strlen($timezone)) {
             $timezone = $default;
         }
+        date_default_timezone_set($timezone);
     }
 
     public static function optimizejs($files, $tmpdir = '../tmp/', $lib_dir = '../3rdparty/gcc/')
