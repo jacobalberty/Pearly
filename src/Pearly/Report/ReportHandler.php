@@ -74,6 +74,9 @@ class ReportHandler extends Base
      *
      * This function executes the specified report and then passes the results to the specified driver.
      *
+     * @todo use dependency injection to inject a printer driver in place of $conf and eliminate
+     *       setDriver/pickDrive
+     *
      * @param string $conf   The print driver configuration parameters to be used.
      * @param array  $params The report parameters to be used.
      */
