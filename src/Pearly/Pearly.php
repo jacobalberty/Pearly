@@ -99,7 +99,6 @@ class Pearly
                 'jar_file'     => "{$lib_dir}/compiler.jar",
                 'output_path'  => $tmpdir,
                 'optimization' => 'SIMPLE_OPTIMIZATIONS',
-                'sort'         => false,
                 ]);
                 $c->add($afiles);
                 $ret = $c->exec($hfname);
