@@ -44,7 +44,7 @@ class Html
         $attributes['name'] = $name;
         $attributes['id'] = $name;
         $attributes['type'] = 'checkbox';
-        return Html::Input($attributes);
+        return self::Input($attributes);
     }
 
     /**
@@ -78,7 +78,7 @@ class Html
     public static function dropDownList(
         $name,
         $values = array(),
-        $blank = false,
+        $blank = null,
         $match = null,
         array $attributes = array()
     ) {
@@ -91,17 +91,13 @@ class Html
             $attr .= "{$k}=\"${v}\" ";
         }
         $result .= "<select {$attr}>" . $term;
-        if (is_string($blank)) {
-            $result .= "<option label=\"{$blank}\"></option>{$term}";
-        } elseif ($blank) {
-            $result .= "<option label=\"Select an option\"></option>{$term}";
+        if (!empty($blank)) {
+            $label = is_string($blank) ? $blank : 'Select an option';
+            $result .= "<option label=\"{$label}\"></option>{$term}";
         }
         foreach ($values as $k => $v) {
-            if ($k == $match) {
-                $result .= "<option value=\"{$k}\" selected=\"selected\">{$v}</option>{$term}";
-            } else {
-                $result .= "<option value=\"{$k}\">{$v}</option>{$term}";
-            }
+            $selected = $k != $match ? '' : 'selected="selected"';
+            $result .= "<option value=\"{$k}\" {$selected}>{$v}</option>{$term}";
         }
 
         $result .= "</select>";
