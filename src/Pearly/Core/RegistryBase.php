@@ -116,18 +116,12 @@ abstract class RegistryBase implements IRegistry
     /** @ignore */
     public function newLocale()
     {
-        /**
-         * @todo support a cookie that will override the HTTP_ACCEPT_LANGUAGE data
-         */
         return \Http::valueFrom($_COOKIE, "{$this->cfg}-locale", $this->blocale);
     }
 
     /** @ignore */
     public function newBLocale()
     {
-        /**
-         * @todo support a cookie that will override the HTTP_ACCEPT_LANGUAGE data
-         */
         $def = 'en_US';
         if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
             $locales = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
