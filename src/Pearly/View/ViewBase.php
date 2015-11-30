@@ -49,7 +49,7 @@ abstract class ViewBase extends \Pearly\Core\Base implements IView
             ? $auth[$classname]
             : $this->authorized;
 
-        $messages = new Session\Member('messages');
+        $messages = new Session\Member('messages', $this->registry);
         $this->messages = $messages->apply('array_merge', $this->messages);
         $messages->removeAll();
 

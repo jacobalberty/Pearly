@@ -26,10 +26,14 @@ class Member implements \ArrayAccess
      *
      * @param string $key Which key from $_SESSION to provide access to.
      */
-    public function __construct($key)
+    public function __construct($key, $registry = null)
     {
         if (session_status() != PHP_SESSION_ACTIVE) {
-            session_name(\Pearly\Session::getName());
+            if ($registry !== null) {
+                session_name($registry->sessionName);
+            } else {
+                session_name(\Pearly\Session::getName());
+            }
             session_start();
         }
         if (!isset($_SESSION[$key]) || !is_array($_SESSION[$key])) {
@@ -126,9 +130,9 @@ class Member implements \ArrayAccess
     {
         if (is_null($offset)) {
             $this->member[] = $value;
-        } else {
-            $this->member[$offset] = $value;
+            return;
         }
+        $this->member[$offset] = $value;
     }
 
     /**

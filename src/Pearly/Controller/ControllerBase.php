@@ -166,7 +166,7 @@ abstract class ControllerBase extends Base implements IController
      */
     protected function addMessage($message)
     {
-        $messages = new Session\Member('messages');
+        $messages = new Session\Member('messages', $this->registry);
         $messages[] = $message;
     }
 
@@ -182,7 +182,7 @@ abstract class ControllerBase extends Base implements IController
      */
     protected function addMessages(Array $messages)
     {
-        $smessages = new Session\Member('messages');
+        $smessages = new Session\Member('messages', $this->registry);
         $smessages->applySet('array_merge', $messages);
     }
 

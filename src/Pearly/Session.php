@@ -21,7 +21,7 @@ class Session
      */
     public static function setName($name)
     {
-        Session::$values['name'] = $name;
+        static::$values['name'] = $name;
     }
 
     /**
@@ -31,6 +31,6 @@ class Session
      */
     public static function getName()
     {
-        return Session::$values['name'];
+        return static::$values['name'];
     }
 }
