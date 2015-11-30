@@ -92,7 +92,6 @@ class Router extends Base
 
         // Session Configuration.
         $this->registry->sessionName = hash('crc32', CORE_PATH.'/'.$this->registry->cfg);
-        Session::setName($this->registry->sessionName);
 
         Type::setRegistry($this->registry);
 

@@ -22,18 +22,17 @@ class Member implements \ArrayAccess
      * This function checks is $key exists in $_SESSION as well
      * as if it is an array and if not creates an array in that key.
      * If no session has been started it will set session_name to
-     * \Pearly\Session::getName() and then call start_session();
+     * $registry->sessionName and then call start_session();
      *
      * @param string $key Which key from $_SESSION to provide access to.
      */
     public function __construct($key, $registry = null)
     {
         if (session_status() != PHP_SESSION_ACTIVE) {
-            if ($registry !== null) {
-                session_name($registry->sessionName);
-            } else {
-                session_name(\Pearly\Session::getName());
+            if ($registry === null) {
+                throw new \Exception('No registry provided');
             }
+            session_name($registry->sessionName);
             session_start();
         }
         if (!isset($_SESSION[$key]) || !is_array($_SESSION[$key])) {
