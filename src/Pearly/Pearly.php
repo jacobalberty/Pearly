@@ -10,14 +10,6 @@ class Pearly
 {
     public static function run($dir = __DIR__)
     {
-        if (get_magic_quotes_gpc()) {
-            die('Please ensure magic_quotes_gpc is set to off in your php.ini');
-        }
-
-        if (ini_get('register_globals')) {
-            die('Please ensure register_globals is set to off in your php.ini');
-        }
-
         mb_internal_encoding('UTF-8');
         mb_http_output('UTF-8');
 
