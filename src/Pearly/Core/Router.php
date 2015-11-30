@@ -9,7 +9,6 @@ namespace Pearly\Core;
 use Pearly\Factory\ControllerFactory;
 use Pearly\Factory\LoggerFactory;
 use Pearly\Factory\ViewFactory;
-use Pearly\Session;
 use Pearly\Model\Type;
 
 /**
