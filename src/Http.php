@@ -57,7 +57,7 @@ class Http
     public static function request($key, $default = \Http::PARAM_UNSET)
     {
         $_REQUEST['__NAME__'] = '$_REQUEST';
-        return \Http::valueFrom($_REQUEST, $key, $default);
+        return self::valueFrom($_REQUEST, $key, $default);
     }
 
     /**
@@ -76,7 +76,7 @@ class Http
     public static function post($key, $default = \Http::PARAM_UNSET)
     {
         $_POST['__NAME__'] = '$_POST';
-        return \Http::valueFrom($_POST, $key, $default);
+        return self::valueFrom($_POST, $key, $default);
     }
 
     /**
@@ -95,7 +95,7 @@ class Http
     public static function get($key, $default = \Http::PARAM_UNSET)
     {
         $_GET['__NAME__'] = '$_GET';
-        return \Http::valueFrom($_GET, $key, $default);
+        return self::valueFrom($_GET, $key, $default);
     }
 
     /**
@@ -105,42 +105,48 @@ class Http
      * If it does it returns the value, if not it returns $default.
      *
      * @param array  $array   The array to search for $key in.
-     * @param string|array $keyp Either a string containing the name of the key or an array describing the key and its values.
+     * @param string|array $key Either a string containing the name of the key or an array describing the key and its values.
      * @param mixed  $default The default value to return if $key doesn't exist.
-     * @param bool   $logit   Log Type Mismatches.
      *
      * @throws \Pearly\Core\ValidationException if $key is not found and no $default is set.
      *
      * @return either the value of $_array[$key] or $default if $key doesn't exist in $_array
      */
-    public static function valueFrom($array, $keyp, $default = \Http::PARAM_UNSET, $logit = true)
+    public static function valueFrom($array, $key, $default = \Http::PARAM_UNSET)
     {
         $nullable = false;
-        if (is_array($keyp)) {
-            if (!isset($keyp['key'])) {
+        $array = array_merge(
+            [
+                '__NAME__' => 'Unknown',
+            ],
+            $array
+        );
+        if (is_array($key)) {
+            if (!isset($key['key'])) {
                 throw new \Exception('Could not find name of key');
             }
-            $nullable = isset($keyp['nullable']) ? $keyp['nullable'] : false;
-            $key = $keyp['key'];
-        } else {
-            $key = $keyp;
+            $key = array_merge(
+                [
+                    'nullable' => false,
+                ],
+                $key
+            );
+
+            $nullable = $key['nullable'];
+            $key = $key['key'];
         }
         $ardepth = substr_count($key, '[]');
         $key = $ardepth !== 0 ? substr($key, 0, -2*$ardepth) : $key;
         if (isset($array[$key])) {
-            return self::arrayProcess($ardepth, $array[$key], $key, $logit, $nullable);
+            return self::arrayProcess($ardepth, $array[$key], $nullable);
         }
         if ($default !== \Http::PARAM_UNSET) {
-            return (is_object($default) && ($default instanceof Closure)) ? $default() : $default;
+            return ($default instanceof \Closure) ? $default() : $default;
         }
-        if (isset($array['__NAME__'])) {
-            throw new ValidationException("Could not find key: '{$key}' in '{$array['__NAME__']}'", 1);
-        } else {
-            throw new ValidationException("Could not find key: '{$key}'", 1);
-        }
+        throw new ValidationException("Could not find key: '{$key}' in '{$array['__NAME__']}'", 1);
     }
 
-    private static function arrayProcess($depth, $value, $key, $logit, $nullable = false)
+    private static function arrayProcess($depth, $value, $nullable)
     {
         $val = $value;
         $isarray = is_array($val);
@@ -148,15 +154,7 @@ class Http
             if ($isarray) {
                 return $val;
             }
-            if ($logit) {
-                $logger = \Pearly\Factory\LoggerFactory::build();
-                $logger->warning("Expected Array for '{$key}' but got " . gettype($val));
-            }
             return [$val];
-        }
-        if ($isarray && $logit) {
-            $logger = \Pearly\Factory\LoggerFactory::build();
-            $logger->warning("Expected Scalar for '{$key}' but got array");
         }
         while (is_array($val)) {
             $val = array_shift($val);
