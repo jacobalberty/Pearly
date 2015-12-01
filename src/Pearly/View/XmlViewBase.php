@@ -53,13 +53,17 @@ abstract class XmlViewBase extends ViewBase
             }
             if (is_array($value)) {
                 $xml .= "<$element>" . $this->array2xml($value) . "</$element>\r\n";
-            } elseif (is_object($value) && $value instanceof \Iterator) {
-                $xml .= "<$element>" . $this->array2xml(iterator_to_array($value)) . "</$element>\r\n";
-            } elseif ($value == '') {
-                $xml .= "<$element />";
-            } else {
-                $xml .= "<{$element}>{$value}</{$element}>";
+                continue;
             }
+            if (is_object($value) && $value instanceof \Iterator) {
+                $xml .= "<$element>" . $this->array2xml(iterator_to_array($value)) . "</$element>\r\n";
+                continue;
+            }
+            if ($value == '') {
+                $xml .= "<$element />";
+                continue;
+            }
+            $xml .= "<{$element}>{$value}</{$element}>";
         }
         return $xml;
     }
