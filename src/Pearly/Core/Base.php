@@ -27,6 +27,7 @@ abstract class Base implements IBase
      * \Pearly\Factory\RegistryFactory
      *
      * @param \Pearly\Core\IRegistry $registry Registry object for this request.
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct(IRegistry &$registry = null)
     {

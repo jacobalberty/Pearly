@@ -28,8 +28,7 @@ class Router extends Base
         $factoryclass = "\\{$this->registry->pkg}\\Factory\\AuthFactory";
 
         if (class_exists($factoryclass)) {
-            $af = new $factoryclass();
-            $auth = $af->build($this->registry);
+            $auth = $factoryclass::build($this->registry);
             $this->registry->auth = $auth;
 
             return $auth->getPerms();
@@ -62,6 +61,7 @@ class Router extends Base
      * <li>View routing.</li>
      * </ol>
      * Eventually this will be broken up into seperate functions.
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function invoke()
     {
@@ -83,11 +83,9 @@ class Router extends Base
         LoggerFactory::$registry = $this->registry;
 
         // Exception Handling.
-        $logger = \Pearly\Factory\LoggerFactory::build();
-
-        $eh = new \Pearly\Core\ExceptionHandler();
-        $eh->setLogger(LoggerFactory::build());
-        $eh->register();
+        $exh = new \Pearly\Core\ExceptionHandler();
+        $exh->setLogger(LoggerFactory::build());
+        $exh->register();
 
         // Session Configuration.
         $this->registry->sessionName = hash('crc32', CORE_PATH.'/'.$this->registry->cfg);
@@ -102,19 +100,14 @@ class Router extends Base
         // Controller Routing and Redirection.
         if (!empty($_POST['controller'])) {
             $action = \Http::post('action');
-            $cf = new ControllerFactory($this->registry, \Http::post('controller'), $auth);
-            $cinst = $cf->build();
+            $cinst = ControllerFactory::build($this->registry, \Http::post('controller'), $auth);
 
             $f_arr = explode(';', $action);
             $aname = array_shift($f_arr);
             $url = $cinst->invoke($aname, $f_arr);
             if (mb_substr($url, 0, 1) == '?') {
                 $parray = $_POST;
-                $preg_grep_keys = function ($pattern, $input, $flags = 0) {
-                    
-                        return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
-                };
-                $parray = $preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
+                $parray = $this->preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
 
                 $url = '?' . \Http::mquery(mb_substr($url, 1), '&', $parray);
             }
@@ -124,36 +117,13 @@ class Router extends Base
             return;
         }
 
-        $vf = new ViewFactory($this->registry, \Http::get('page', null), $auth);
-        $view = $vf->build();
+        $view = ViewFactory::build($this->registry, \Http::get('page', null), $auth);
         $view->invoke();
     }
 
-    /**
-     * Get classes from directory function.
-     *
-     * This function searches a directory and returns a list of filenames
-     * to be used for loading classes in the directory.
-     * For example to initialize all types within the specified directory.
-     *
-     * @param string $dir The directory to search.
-     *
-     * @return array A list of filenames in the specified directory.
-     */
-    private function getClassesFromDir($dir)
+    /** @ignore */
+    private function preg_grep_keys($pattern, $input, $flags = 0)
     {
-        $result = array();
-        if (!is_readable($dir)) {
-            return $result;
-        }
-        $files = scandir($dir);
-
-        array_shift($files);
-        array_shift($files);
-
-        foreach ($files as $file) {
-            $result[] = pathinfo($file, PATHINFO_FILENAME);
-        }
-        return $result;
+        return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
     }
 }

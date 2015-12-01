@@ -19,6 +19,7 @@ class VOFactory
      *
      * @param \Pearly\Core\IRegistry $registry
      *  The registry to use for construction, if none is set then one will be created.
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct(\Pearly\Core\IRegistry $registry = null)
     {
@@ -43,8 +44,7 @@ class VOFactory
         $voname = "\\{$this->registry->pkg}\\Model\\VO\\{$type}";
         $args = func_get_args();
         array_shift($args);
-        $r = new \ReflectionClass($voname);
-        return $r->newInstanceArgs($args);
-//        return new $voname();
+        $reflection = new \ReflectionClass($voname);
+        return $reflection->newInstanceArgs($args);
     }
 }

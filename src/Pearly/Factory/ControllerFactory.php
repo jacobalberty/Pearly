@@ -14,31 +14,6 @@ namespace Pearly\Factory;
  */
 class ControllerFactory
 {
-    /** @var \Pearly\Core\IRegistry The registry to be used when building new Controllers. */
-    private $registry;
-    /** @var string The name of the controller to build. */
-    private $controller;
-    /** @var array Authorization information */
-    private $auth;
-
-    /**
-     * Constructor function.
-     *
-     *
-     * @param \Pearly\Core\IRegistry $registry   Registry object to pass to the controller.
-     * @param string                 $controller String containing name of the controller to load.
-     * @param array                  $auth       Array containing authorization information.
-     */
-    public function __construct(
-        \Pearly\Core\IRegistry $registry,
-        $controller,
-        $auth = array('default' => true)
-    ) {
-        $this->registry   = $registry;
-        $this->controller = $controller;
-        $this->auth       = $auth;
-    }
-
     /**
      * Build function.
      *
@@ -46,10 +21,13 @@ class ControllerFactory
      *
      * @return \Pearly\Controller\IController New controller object.
      */
-    public function build()
-    {
-        $cname = "\\{$this->registry->pkg}\\Controller\\{$this->controller}Controller";
-        $cinst = new $cname($this->registry, $this->auth);
+    public static function build(
+        \Pearly\Core\IRegistry $registry,
+        $controller,
+        $auth = array('default' => true)
+    ) {
+        $cname = "\\{$registry->pkg}\\Controller\\{$controller}Controller";
+        $cinst = new $cname($registry, $auth);
 
         return $cinst;
     }

@@ -29,62 +29,44 @@ class Logger extends Log\AbstractLogger
     public function log($level, $message, array $context = array())
     {
         $priority = null;
-        switch ($level) {
-            case Log\LogLevel::EMERGENCY:
-                $priority = LOG_EMERG;
-                // NO BREAK
-            case Log\LogLevel::ALERT:
-                $priority = LOG_ALERT;
-                // NO BREAK
-            case Log\LogLevel::CRITICAL:
-                $priority = LOG_CRIT;
-                // NO BREAK
-            case Log\LogLevel::ERROR:
-                $priority = LOG_ERR;
-                // NO BREAK
-            case Log\LogLevel::WARNING:
-                $priority = LOG_WARNING;
-                // NO BREAK
-            case Log\LogLevel::NOTICE:
-                $priority = LOG_NOTICE;
-                // NO BREAK
-            case Log\LogLevel::INFO:
-                $priority = LOG_INFO;
-                // NO BREAK
-            case Log\LogLevel::DEBUG:
-                $priority = LOG_DEBUG;
-                // NO BREAK
-            default:
-                if (is_null($priority)) {
-                    throw new Log\InvalidArgumentException(
-                        'log only accepts the types defined in \Psr\Log\LogLevel received: '. $level
-                    );
-                } else {
-                    openlog("Pearly", LOG_PID | LOG_CONS | LOG_NDELAY, LOG_USER);
-                    $referer = '';
-                    if (!empty($_SERVER['HTTP_REFERER'])) {
-                        $referer = ", referer: {$_SERVER['HTTP_REFERER']}";
-                    }
-                    $client = '';
-                    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                        $client = "[client {$_SERVER['HTTP_X_FORWARDED_FOR']}] ";
-                        if (!empty($_SERVER['REMOTE_ADDR'])) {
-                            $client .= "[proxy {$_SERVER['REMOTE_ADDR']}] ";
-                        }
-                    } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
-                        $client = "[client {$_SERVER['REMOTE_ADDR']}] ";
-                    }
-
-                    syslog(
-                        $priority,
-                        "[{$level}] {$client}"
-                        . $this->interpolate($message, $context)
-                        . $referer
-                    );
-                    closelog();
-                }
-                break;
+        $levels = [
+            Log\LogLevel::EMERGENCY => LOG_EMERG,
+            Log\LogLevel::ALERT => LOG_ALERT,
+            Log\LogLevel::CRITICAL => LOG_CRIT,
+            Log\LogLevel::ERROR => LOG_ERR,
+            Log\LogLevel::WARNING => LOG_WARNING,
+            Log\LogLevel::NOTICE => LOG_NOTICE,
+            Log\LogLevel::INFO => LOG_INFO,
+            Log\LogLevel::DEBUG => LOG_DEBUG,
+        ];
+        $priority = $levels[$level];
+        if (is_null($priority)) {
+            throw new Log\InvalidArgumentException(
+                'log only accepts the types defined in \Psr\Log\LogLevel received: '. $level
+            );
         }
+        openlog("Pearly", LOG_PID | LOG_CONS | LOG_NDELAY, LOG_USER);
+        $referer = '';
+        if (!empty($_SERVER['HTTP_REFERER'])) {
+            $referer = ", referer: {$_SERVER['HTTP_REFERER']}";
+        }
+        $client = '';
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $client = "[client {$_SERVER['HTTP_X_FORWARDED_FOR']}] ";
+            if (!empty($_SERVER['REMOTE_ADDR'])) {
+                $client .= "[proxy {$_SERVER['REMOTE_ADDR']}] ";
+            }
+        } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            $client = "[client {$_SERVER['REMOTE_ADDR']}] ";
+        }
+
+        syslog(
+            $priority,
+            "[{$level}] {$client}"
+                . $this->interpolate($message, $context)
+                . $referer
+        );
+        closelog();
     }
 
     /**

@@ -12,6 +12,7 @@ namespace Pearly\Core;
  * @property pkg  string The name of the package this object is initialized for.
  * @property cfg  string The configuration name this object is initialized for.
  * @property auth string Default authorization module.
+ * @SuppressWarnings(PHPMD.StaticAccess)
  */
 abstract class RegistryBase implements IRegistry
 {

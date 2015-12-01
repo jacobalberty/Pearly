@@ -20,16 +20,16 @@ class RegistryFactory
      * constructs a registry from that pkg name using the configuration file.
      *
      * @return \Pearly\Core\IRegistry The constructed registry object.
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public static function build()
     {
         $pkg = \Http::valueFrom($_REQUEST, 'pkg', parse_ini_file(CORE_PATH.'/conf/pearly.inc.php', false)['pkg']);
         $conf = CORE_PATH . '/conf/' . \Http::valueFrom($_REQUEST, 'conf', mb_strtolower($pkg)) . '.inc.php';
-        if (is_readable($conf)) {
-            $ini_data = parse_ini_file($conf, true);
-        } else {
+        if (!is_readable($conf)) {
             throw new \Exception("Couldn't read {$conf}");
         }
+        $ini_data = parse_ini_file($conf, true);
         if (isset($ini_data['pearly']['pkg'])) {
             $pkg = $ini_data['pearly']['pkg'];
         }

@@ -21,6 +21,7 @@ class DAOFactory
      *
      * @param \Pearly\Core\IRegistry $registry
      *  The registry to use for construction, if none is set then one will be created.
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     public function __construct(\Pearly\Core\IRegistry $registry = null)
     {

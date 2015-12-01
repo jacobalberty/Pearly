@@ -47,10 +47,11 @@ class ExceptionHandler implements LoggerAwareInterface
      * This function sanitizes the stacktrace by converting variables
      * to their types then uses $this->logger->error() to save a log of the exception.
      *
-     * @param \Exception|\ParseError $ex the exception to log.
+     * @param \Exception|\ParseError $exc the exception to log.
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
 //    public function exceptionHandler(\Exception $ex)
-    public function exceptionHandler($ex)
+    public function exceptionHandler($exc)
     {
         // these are our templates
         $traceline = "#%s %s(%s): %s(%s)";
@@ -61,7 +62,7 @@ Stack trace:
 Request: %s
 EOM;
         // alter your trace as you please, here
-        $trace = $ex->getTrace();
+        $trace = $exc->getTrace();
         foreach ($trace as $key => $stackPoint) {
             // I'm converting arguments to their type
             // (prevents passwords from ever getting logged as anything other than 'string')
@@ -91,10 +92,10 @@ EOM;
         // write tracelines into main template
         $msg = sprintf(
             $msg,
-            get_class($ex),
-            $ex->getMessage(),
-            $ex->getFile(),
-            $ex->getLine(),
+            get_class($exc),
+            $exc->getMessage(),
+            $exc->getFile(),
+            $exc->getLine(),
             implode(PHP_EOL, $result),
             $request
         );
