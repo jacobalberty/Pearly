@@ -171,7 +171,8 @@ abstract class ControllerBase extends Base implements IController
      * Calls the child classes 'create' method if it exists.
      *
      */
-    private function doCreate() {
+    private function doCreate()
+    {
         if (is_callable(array($this, 'create'))) {
             $this->create();
         }
@@ -208,7 +209,8 @@ abstract class ControllerBase extends Base implements IController
      *
      * @return bool
      */
-    private function authCheck($auth) {
+    private function authCheck($auth)
+    {
         $refc = new \ReflectionClass($this);
         $classname = $refc->getShortName();
 
