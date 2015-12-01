@@ -35,17 +35,16 @@ abstract class ViewBase extends \Pearly\Core\Base implements IView
     {
         parent::__construct($registry);
 
-        $classname = get_class($this);
-        if (preg_match('@\\\\([\w]+)$@', $classname, $matches)) {
-            $classname = $matches[1];
-        }
-        $this->authorized = (isset($auth['default']) && is_bool($auth['default']))
+        $refc = new \ReflectionClass($this);
+        $classname = $refc->getShortName();
+
+        $this->authorized = isset($auth['default'])
             ? $auth['default']
             : $this->authorized;
-        $this->authorized = (isset($auth['viewdefault']) && is_bool($auth['viewdefault']))
+        $this->authorized = isset($auth['viewdefault'])
             ? $auth['viewdefault']
             : $this->authorized;
-        $this->authorized = (isset($auth[$classname]) && is_bool($auth[$classname]))
+        $this->authorized = isset($auth[$classname])
             ? $auth[$classname]
             : $this->authorized;
 
