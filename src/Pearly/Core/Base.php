@@ -31,8 +31,7 @@ abstract class Base implements IBase
     public function __construct(IRegistry &$registry = null)
     {
         if ($registry === null) {
-            $rf = new RegistryFactory();
-            $registry = $rf->build();
+            $registry = RegistryFactory::build();
         }
         $this->registry = $registry;
     }

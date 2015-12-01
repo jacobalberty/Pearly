@@ -23,8 +23,7 @@ class VOFactory
     public function __construct(\Pearly\Core\IRegistry $registry = null)
     {
         if ($registry === null) {
-            $rf = new RegistryFactory();
-            $registry = $rf->build();
+            $registry = RegistryFactory::build();
         }
         $this->registry = $registry;
     }
