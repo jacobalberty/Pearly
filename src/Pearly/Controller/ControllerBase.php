@@ -42,18 +42,10 @@ abstract class ControllerBase extends Base implements IController
     public function __construct(IRegistry &$registry = null, array $auth = array(), LoggerInterface $logger = null)
     {
         $this->logger = is_null($logger) ? \Pearly\Factory\LoggerFactory::build() : $logger;
-        $classname = get_class($this);
-        if (preg_match('@\\\\([\w]+)$@', $classname, $matches)) {
-            $classname = $matches[1];
-        }
-        $this->authorized = (isset($auth['default']) && is_bool($auth['default']))
-            ? $auth['default'] : $this->authorized;
-        $this->authorized = (isset($auth['controllerdefault']) && is_bool($auth['controllerdefault']))
-            ? $auth['controllerdefault'] : $this->authorized;
-        $this->authorized = (isset($auth[$classname]) && is_bool($auth[$classname]))
-            ? $auth[$classname] : $this->authorized;
 
         $this->back = '?' . $_SERVER['QUERY_STRING'];
+
+        $this->authorized = $this->authCheck($auth);
 
         parent::__construct($registry);
 
@@ -87,7 +79,6 @@ abstract class ControllerBase extends Base implements IController
             return $this->back;
         }
         $check = new \ReflectionMethod($this, $fname);
-
         if (!$check->isPublic()) {
             $this->addMessage('You are not authorized to perform that action at this time');
             $this->logger->error('Non-public function passed to doAction');
@@ -98,18 +89,11 @@ abstract class ControllerBase extends Base implements IController
             return $this->back;
         }
         try {
-            if (is_callable(array($this,'create'))) {
-                $this->create();
-            }
+            $this->doCreate();
             $_POST['__NAME__'] = '$_POST';
             $url = call_user_func_array(array($this, $fname), array_merge(array($_POST), $params));
         } catch (\ErrorException $e) {
-            if (is_callable(array($this, 'exceptionMessage'))) {
-                $excM = $this->exceptionMessage($e);
-            } else {
-                $excM = 'Caught Error: '.$e->getMessage();
-            }
-            $this->addMessage('['.strftime('%c')."] {$excM}\n");
+            $this->addMessage('['.strftime('%c').'] ' . $this->doExceptionMessage($e) . PHP_EOL);
             $this->logger->error(
                 "Caught Error: '" . $e->getMessage()
                 . "' In file: '" . $e->getFile()
@@ -121,28 +105,11 @@ abstract class ControllerBase extends Base implements IController
 
             $url = $this->back;
 
-            /** @todo Refactor this */
             $parray = $_POST;
-            $preg_grep_keys = function ($pattern, $input, $flags = 0) {
-                
-                    return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
-            };
-            $parray = $preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
+            $parray = $this->preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
             $query = parse_url($url, PHP_URL_QUERY);
             if ($query) {
                 $url = '?' . \Http::mquery($query, '&', $parray);
-            }
-
-            if ($this->registry->debug) {
-                throw new \ErrorException(
-                    $e->getMessage(),
-                    $e->getCode(),
-                    $e->getSeverity(),
-                    $e->getFile(),
-                    $e->getLine(),
-                    $e
-                );
-                $url = null;
             }
         } catch (Core\ValidationException $e) {
             foreach ($e->getMessages() as $message) {
@@ -196,5 +163,64 @@ abstract class ControllerBase extends Base implements IController
     protected function getDAO($type)
     {
         return $this->daofactory->build($type);
+    }
+
+    /**
+     * do Create function.
+     *
+     * Calls the child classes 'create' method if it exists.
+     *
+     */
+    private function doCreate() {
+        if (is_callable(array($this, 'create'))) {
+            $this->create();
+        }
+    }
+
+    /**
+     * do Exception Message function.
+     *
+     * Checks if exceptionMessage(\Exception) exists in the child and uses
+     * it to parse the exception message if it exists, otherwise it gives
+     * a header to $exc->getMessage() and returns that instead.
+     *
+     * @param \Exception $exc The exception to process.
+     *
+     * @return string the message to display.
+     */
+    private function doExceptionMessage(\Exception $exc)
+    {
+        return (is_callable(array($this, 'exceptionMessage')))
+            ? $this->exceptionMessage($exc)
+            : 'Caught Error: '.$exc->getMessage();
+    }
+
+    /** @ignore */
+    private function preg_grep_keys($pattern, $input, $flags = 0)
+    {
+        return array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags)));
+    }
+
+    /**
+     * Auth Check function
+     *
+     * @param array $auth
+     *
+     * @return bool
+     */
+    private function authCheck($auth) {
+        $refc = new \ReflectionClass($this);
+        $classname = $refc->getShortName();
+
+        $authorized = false;
+
+        $authorized = isset($auth['default'])
+            ? $auth['default'] : $authorized;
+        $authorized = isset($auth['controllerdefault'])
+            ? $auth['controllerdefault'] : $authorized;
+        $authorized = isset($auth[$classname])
+            ? $auth[$classname] : $authorized;
+
+        return $authorized;
     }
 }
