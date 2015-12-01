@@ -31,9 +31,9 @@ class Type
     {
         if (is_null(self::$registry)) {
             self::registerType(new $name());
-        } else {
-            self::registerType(new $name(self::$registry));
+            return;
         }
+        self::registerType(new $name(self::$registry));
     }
 
 

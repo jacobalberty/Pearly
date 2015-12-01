@@ -14,7 +14,14 @@ use Pearly\Core\ValidationException;
 
 /**
  * Base class for Value Objects.
+ *
+ * This class implements a lot of interfaces so it is quite complex. Fortunately child
+ * classes descending from it can be extremely simple.
+ *
  * @property string $mode used to indicate whether we are accessing from a model or view.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class VOBase implements \Iterator, \Serializable, \JsonSerializable
 {
@@ -81,6 +88,7 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
      * @param mixed $obj The class to process (should always be $this).
      *
      * @return Array an array of variables to be handled
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     private function property($obj)
     {
@@ -122,12 +130,12 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
 //            if (is_callable(array($this, 'set'.$name))) {
             if (method_exists($this, 'set'.$name)) {
                 $this->{'set'.$name}($value);
-            } else {
-                $this->values[$name] = $this->parseSet($name, $value);
+                return;
             }
-        } else {
-            throw new \Exception("Undefined property '$name'.");
+            $this->values[$name] = $this->parseSet($name, $value);
+            return;
         }
+        throw new \Exception("Undefined property '$name'.");
     }
 
     /**
@@ -148,9 +156,8 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
                 return $this->{"get{$name}"}();
             }
             return $this->parseGet($name);
-        } else {
-            throw new \Exception("Undefined property '$name'.");
         }
+        throw new \Exception("Undefined property '$name'.");
     }
 
     /* end of code from latrine.dgx.cz */
@@ -179,11 +186,11 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
      *
      * @throws \Exception if an invalid format was returned from the validator function.
      * @throws \Pearly\Core\ValidationException if there are returned validation errors.
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     final public function validate()
     {
         $messages = array();
-        $result = array();
         $tmp = $this->mode;
         $this->mode = $this::MODE_MODEL;
         if (is_callable(array($this, 'validator'))) {
@@ -256,6 +263,7 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
      * @param mixed  $value The value of the property.
      *
      * @return mixed The final value to be stored.
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     private function parseSet($name, $value)
     {
@@ -280,6 +288,7 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
      * @param string $name The name of the property to be parsed.
      *
      * @return mixed The final value returned.
+     * @SuppressWarnings(PHPMD.StaticAccess)
      */
     private function parseGet($name)
     {
@@ -364,6 +373,9 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
         return key($this->values) !== null;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function jsonSerialize()
     {
         $data = [];
@@ -385,6 +397,9 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
         ));
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function unserialize($data)
     {
         $arr = unserialize($data);
@@ -395,7 +410,6 @@ class VOBase implements \Iterator, \Serializable, \JsonSerializable
         $this->mode = $arr['mode'];
         $this->setEscape(function ($value) {
             return $value;
-
         });
         foreach ($this->props as $k => $v) {
             unset($this->$k);
