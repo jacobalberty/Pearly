@@ -62,26 +62,83 @@ class Pearly
         /** @todo detect java to ensure this will run */
         $localcompile = is_readable("{$lib_dir}/compiler.jar");
         $closure = $localcompile;
+        header('Content-type: text/javascript');
 
-        if ($closure) {
-            return self::closurejs($files, $tmpdir, $lib_dir);
-        }
-        $jsfiles = array();
-        foreach (explode('&', $files) as $part) {
-            $part = explode('=', $part);
-            if ($key = array_shift($part)) {
-                if (empty($part)) {
-                    $jsfiles[] = $key;
+        $mtime  = 0;
+        $afiles = [];
+        foreach (explode('&', $files) as $key) {
+            if (!strpos($key, '=')) {
+                $kfn = "{$key}.js";
+                $afiles[] = $kfn;
+                $cfmtime = filemtime($kfn);
+                if ($cfmtime > $mtime) {
+                    $mtime = $cfmtime;
                 }
             }
         }
+        if ($closure) {
+            return self::closurejs($afiles, $mtime, $tmpdir, $lib_dir);
+        }
+        return self::concatJs($afiles);
+    }
 
+    private static function doRebuild($afiles, $tmpdir, $mtime, $lib_dir)
+    {
+        $hfname = hash('md5', implode($afiles), false) . '.js';
+        $cache_file = "{$tmpdir}/{$hfname}";
+        if (!is_readable($cache_file) || $mtime > filemtime($cache_file)) {
+            $lockfile = "{$cache_file}.lockfile";
+            $file = fopen($lockfile, 'w+');
+            if (!flock($file, LOCK_NB | LOCK_EX)) {
+                self::concatJs($afiles);
+                return;
+            }
+            $phpcc = new \tureki\PhpCc([
+                'java_file'    => '/usr/bin/java -server -XX:+TieredCompilation',
+                'jar_file'     => "{$lib_dir}/compiler.jar",
+                'output_path'  => $tmpdir,
+                'optimization' => 'SIMPLE_OPTIMIZATIONS',
+            ]);
+            $phpcc->add($afiles);
+            $ret = $phpcc->exec($hfname);
+            if ($ret['status'] !== 0) {
+                foreach ($ret['out'] as $out) {
+                    echo "console.error('" . str_replace("'", "\\'", $out) . "');" . PHP_EOL;
+                }
+            }
+            flock($file, LOCK_NB | LOCK_UN);
+        }
+        return $cache_file;
+    }
+
+    private static function closurejs($afiles, $mtime, $tmpdir, $lib_dir)
+    {
+        $tmpdir = is_writable($tmpdir) ? $tmpdir : '/tmp/';
+        ob_start();
+        $cache_file = self::doRebuild($afiles, $tmpdir, $mtime, $lib_dir);
+        if (!is_null($cache_file) && is_readable($cache_file)) {
+            $cache_mtime = filemtime($cache_file);
+            $etag = md5_file($cache_file);
+            header("Last-Modified: ".gmdate("D, d M Y H:i:s", $cache_mtime)." GMT");
+            header("Etag: \"{$etag}\"");
+            if (@strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
+            @trim(@$_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
+                header("HTTP/1.1 304 Not Modified");
+                return;
+            }
+            readfile($cache_file);
+        }
+        ob_end_flush();
+    }
+
+    private static function concatJs($jsfiles)
+    {
         $jsc = '';        // code to compress
         $err = '';       // error string
         $jscomp = '';    // Final code
         // fetch JavaScript files
         for ($i = 0, $j = count($jsfiles); $i < $j; $i++) {
-            $fname = $jsfiles[$i] . '.js';
+            $fname = $jsfiles[$i];
             $jscode = @file_get_contents($fname);
             if ($jscode !== false) {
                 $jsc .= "{$jscode}\n";
@@ -98,62 +155,6 @@ class Pearly
             $jscomp .= $jsc;
         }
         // output content
-        header('Content-type: text/javascript');
         echo $jscomp;
-    }
-
-    private static function doRebuild($afiles, $tmpdir, $mtime, $lib_dir)
-    {
-        $hfname = hash('md5', implode($afiles), false) . '.js';
-        $cache_file = "{$tmpdir}/{$hfname}";
-        if (!is_readable($cache_file) || $mtime > filemtime($cache_file)) {
-            $phpcc = new \tureki\PhpCc([
-                'java_file'    => '/usr/bin/java -server -XX:+TieredCompilation',
-                'jar_file'     => "{$lib_dir}/compiler.jar",
-                'output_path'  => $tmpdir,
-                'optimization' => 'SIMPLE_OPTIMIZATIONS',
-            ]);
-            $phpcc->add($afiles);
-            $ret = $phpcc->exec($hfname);
-            if ($ret['status'] !== 0) {
-                foreach ($ret['out'] as $out) {
-                    echo "console.error('" . str_replace("'", "\\'", $out) . "');" . PHP_EOL;
-                }
-            }
-        }
-        return $cache_file;
-    }
-
-    private static function closurejs($files, $tmpdir, $lib_dir)
-    {
-        $tmpdir = is_writable($tmpdir) ? $tmpdir : '/tmp/';
-        $afiles = [];
-        $mtime  = 0;
-        foreach (explode('&', $files) as $key) {
-            if (!strpos($key, '=')) {
-                $kfn = "{$key}.js";
-                $afiles[] = $kfn;
-                $cfmtime = filemtime($kfn);
-                if ($cfmtime > $mtime) {
-                    $mtime = $cfmtime;
-                }
-            }
-        }
-        header('Content-Type: text/javascript');
-        ob_start();
-        $cache_file = self::doRebuild($afiles, $tmpdir, $mtime, $lib_dir);
-        if (is_readable($cache_file)) {
-            $cache_mtime = filemtime($cache_file);
-            $etag = md5_file($cache_file);
-            header("Last-Modified: ".gmdate("D, d M Y H:i:s", $cache_mtime)." GMT");
-            header("Etag: \"{$etag}\"");
-            if (@strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
-            @trim(@$_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
-                header("HTTP/1.1 304 Not Modified");
-                return;
-            }
-            readfile($cache_file);
-        }
-        ob_end_flush();
     }
 }
