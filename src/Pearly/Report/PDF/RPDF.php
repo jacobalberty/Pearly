@@ -284,7 +284,9 @@ class RPDF extends \fpdi\tfpdf
         }
         return $nl;
     }
-    function LineGraph($w, $h, $data, $options='', $colors=null, $maxVal=0, $nbDiv=4){
+
+    function LineGraph($w, $h, $data, $options='', $colors=null, $maxVal=0, $nbDiv=4, $iopt = [])
+    {
         /*******************************************
         Explain the variables:
         $w = the width of the diagram
@@ -301,6 +303,18 @@ class RPDF extends \fpdi\tfpdf
         $maxVal = The Maximum Value for the graph vertically
         $nbDiv = The number of vertical Divisions
         *******************************************/
+        $ioptdef = [
+            'abs' => [
+                'mod' => 1,
+            ],
+            'keyf' => [
+                'family' => 'Courier',
+                'style' => '',
+                'size' => 10,
+            ],
+        ];
+        $iopt = array_replace_recursive($ioptdef, $iopt);
+
         $this->SetDrawColor(0,0,0);
         $this->SetLineWidth(0.2);
         $keys = array_keys($data);
@@ -403,7 +417,7 @@ class RPDF extends \fpdi\tfpdf
                 }
             }
             //Set the Key (legend)
-            $this->SetFont('Courier','',10);
+            $this->SetFont($iopt['keyf']['family'], $iopt['keyf']['style'], $iopt['keyf']['size']);
             if(!isset($n))$n=0;
             $this->Line($keyX+1,$keyY+$lineh/2+$n*$lineh,$keyX+8,$keyY+$lineh/2+$n*$lineh);
             $this->SetXY($keyX+8,$keyY+$n*$lineh);
@@ -418,7 +432,7 @@ class RPDF extends \fpdi\tfpdf
             } else if($key==count($valueKeys)-1){
                 $this->SetXY($graphValX+$graphValW-30,$graphValY);
                 $this->Cell(30,$lineh,$value,0,0,'R');
-            } else {
+            } else if($key % $iopt['abs']['mod'] == 0){
                 $this->SetXY($graphValX+$key*$horiDivW-15,$graphValY);
                 $this->Cell(30,$lineh,$value,0,0,'C');
             }
