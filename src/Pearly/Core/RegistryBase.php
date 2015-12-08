@@ -106,7 +106,8 @@ abstract class RegistryBase implements IRegistry
     /** @ignore */
     public function getCfg()
     {
-        return \Http::valueFrom($_REQUEST, 'conf', mb_strtolower($this->Pkg));
+        $request = $this->query + $this->parsedBody;
+        return \Http::valueFrom($request, 'conf', mb_strtolower($this->Pkg));
     }
 
     /** @ignore */
@@ -118,15 +119,16 @@ abstract class RegistryBase implements IRegistry
     /** @ignore */
     public function newLocale()
     {
-        return \Http::valueFrom($_COOKIE, "{$this->cfg}-locale", $this->blocale);
+        return \Http::valueFrom($this->cookie, "{$this->cfg}-locale", $this->blocale);
     }
 
     /** @ignore */
     public function newBLocale()
     {
+        $server = $this->server;
         $def = 'en_US';
-        if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
-            $locales = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $server)) {
+            $locales = explode(',', $server['HTTP_ACCEPT_LANGUAGE']);
             return str_replace('-', '_', $locales[0]);
         }
         return $def;
@@ -135,7 +137,7 @@ abstract class RegistryBase implements IRegistry
     /** @ignore */
     public function newISO8601()
     {
-        return \Http::valueFrom($_COOKIE, "{$this->cfg}-iso8601", false) === "1";
+        return \Http::valueFrom($this->cookie, "{$this->cfg}-iso8601", false) === "1";
     }
 
     /** @ignore */
@@ -143,5 +145,25 @@ abstract class RegistryBase implements IRegistry
     {
         return !isset($this->conf_data['main']['staticquery'])
             || filter_var($this->conf_data['main']['staticquery'], FILTER_VALIDATE_BOOLEAN);
+    }
+
+    protected function newCookie()
+    {
+        return $this->serverRequest->getCookieParams();
+    }
+
+    protected function newParsedBody()
+    {
+        return $this->serverRequest->getParsedBody();
+    }
+
+    protected function newServer()
+    {
+        return $this->serverRequest->getServerParams();
+    }
+
+    protected function newQuery()
+    {
+        return $this->serverRequest->getQueryParams();
     }
 }
