@@ -49,10 +49,10 @@ class ReportHandler extends Base
         $pkgdriver = "\\{$this->registry->pkg}\\Driver\\{$driver}PrintDriver";
         $pearlydriver = "\\Pearly\\Driver\\{$driver}PrintDriver";
         if (class_exists($pkgdriver)) {
-            return $this->setDriver(new $pkgdriver());
+            return $this->setDriver(new $pkgdriver($this->registry));
         }
         if (class_exists($pearlydriver)) {
-            return $this->setDriver(new $pearlydriver());
+            return $this->setDriver(new $pearlydriver($this->registry));
         }
         throw new ReportException("Could not find $driver within either namespace");
     }
