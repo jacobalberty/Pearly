@@ -23,5 +23,5 @@ interface IRegistry
      *
      * @param array $conf_data Array containing configuration data.
      */
-    public function __construct($conf_data);
+    public function __construct($conf_data, \Psr\Http\Message\ServerRequestInterface $serverRequest);
 }

@@ -8,7 +8,7 @@ namespace Pearly;
 
 class Pearly
 {
-    public static function run($dir = __DIR__)
+    public static function run($dir = __DIR__, \Psr\Http\Message\ServerRequestInterface $serverRequest)
     {
         mb_internal_encoding('UTF-8');
         mb_http_output('UTF-8');
@@ -19,7 +19,8 @@ class Pearly
 
         set_error_handler('\Pearly\Pearly::exceptionErrorHandler', E_ALL);
         self::setTimeZone("America/Chicago");
-        $router = new \Pearly\Core\Router();
+        $registry = \Pearly\Factory\RegistryFactory::build($serverRequest);
+        $router = new \Pearly\Core\Router($registry);
         $router->invoke();
 
     }
@@ -59,6 +60,7 @@ class Pearly
 
     public static function optimizejs($files, $tmpdir = '../tmp/', $lib_dir = '../3rdparty/gcc/')
     {
+        set_error_handler('\Pearly\Pearly::exceptionErrorHandler', E_ALL);
         /** @todo detect java to ensure this will run */
         $localcompile = is_readable("{$lib_dir}/compiler.jar");
         $closure = $localcompile;
@@ -121,10 +123,12 @@ class Pearly
             $etag = md5_file($cache_file);
             header("Last-Modified: ".gmdate("D, d M Y H:i:s", $cache_mtime)." GMT");
             header("Etag: \"{$etag}\"");
-            if (@strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
-            @trim(@$_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
-                header("HTTP/1.1 304 Not Modified");
-                return;
+            if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && isset($_server['HTTP_IF_NONE_MATCH'])) {
+                if (@strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
+                    @trim(@$_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
+                        header("HTTP/1.1 304 Not Modified");
+                            return;
+                }
             }
             readfile($cache_file);
         }

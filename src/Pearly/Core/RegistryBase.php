@@ -78,9 +78,10 @@ abstract class RegistryBase implements IRegistry
      *
      * @param array $conf_data List of retrieved configuration parameters and their value in an associative array.
      */
-    public function __construct($conf_data)
+    public function __construct($conf_data, \Psr\Http\Message\ServerRequestInterface $serverRequest)
     {
         $this->conf_data = $conf_data;
+        $this->serverRequest = $serverRequest;
     }
 
     /**

@@ -221,10 +221,15 @@ abstract class HtmlViewBase extends ViewBase
             }
             return;
         }
+        $serverRequest = $this->registry->serverRequest;
         $funcName = "def{$section}";
         if (is_callable(array($this, $funcName))) {
             try {
-                $this->$funcName();
+                $this->$funcName(
+                    $serverRequest->getQueryParams(),
+                    $serverRequest->getCookieParams(),
+                    $serverRequest->getServerParams()
+                );
             } catch (\Exception $e) {
                 echo "Error: Unhandled exception caught, please check logs.";
                 $logger = \Pearly\Factory\LoggerFactory::build();
@@ -234,7 +239,11 @@ abstract class HtmlViewBase extends ViewBase
         $funcName = "sect{$section}";
         if (is_callable(array($this, $funcName))) {
             try {
-                $this->$funcName();
+                $this->$funcName(
+                    $serverRequest->getQueryParams(),
+                    $serverRequest->getCookieParams(),
+                    $serverRequest->getServerParams()
+                );
             } catch (\Exception $e) {
                 echo "Error: Unhandled exception caught, please check logs.";
                 $logger = \Pearly\Factory\LoggerFactory::build();
@@ -259,7 +268,8 @@ abstract class HtmlViewBase extends ViewBase
         $ppath = CORE_PATH.'/html/' . mb_strtolower($this->registry->pkg) . "/{$dir}{$name}.";
         header("Vary: Accept-Language");
 
-        $hac = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : 'en-US';
+        $server = $this->registry->serverRequest->getServerParams();
+        $hac = isset($server['HTTP_ACCEPT_LANGUAGE']) ? $server['HTTP_ACCEPT_LANGUAGE'] : 'en-US';
         /**
          * code to autonegotiate the localization based on BSD licensed code from
          * http://www.dyeager.org/blog/2008/10/getting-browser-default-language-php.html
@@ -358,10 +368,11 @@ HTML;
         $charset = "utf-8";
         $mime = "text/html";
 
-        if (isset($_SERVER["HTTP_ACCEPT"]) && stristr($_SERVER["HTTP_ACCEPT"], "application/xhtml+xml")) {
-            if (preg_match("/application\/xhtml\+xml;q=([01]|0\.\d{1,3}|1\.0)/i", $_SERVER["HTTP_ACCEPT"], $matches)) {
+        $server = $this->registry->serverRequest->getServerParams();
+        if (isset($server["HTTP_ACCEPT"]) && stristr($server["HTTP_ACCEPT"], "application/xhtml+xml")) {
+            if (preg_match("/application\/xhtml\+xml;q=([01]|0\.\d{1,3}|1\.0)/i", $server["HTTP_ACCEPT"], $matches)) {
                 $xhtml_q = $matches[1];
-                if (preg_match("/text\/html;q=([01]|0\.\d{1,3}|1\.0)/i", $_SERVER["HTTP_ACCEPT"], $matches)) {
+                if (preg_match("/text\/html;q=([01]|0\.\d{1,3}|1\.0)/i", $server["HTTP_ACCEPT"], $matches)) {
                     $html_q = $matches[1];
                     if ((float)$xhtml_q >= (float)$html_q) {
                         $mime = "application/xhtml+xml";

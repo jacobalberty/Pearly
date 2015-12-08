@@ -28,6 +28,7 @@
         "ext-intl": "*",
         "psr/log": "^1.0",
         "tureki/phpcc": ">=1.0.5",
-        "istom1n/fpdi-tfpdf": "^1.0"
+        "istom1n/fpdi-tfpdf": "^1.0",
+        "psr/http-message": "^1.0"
     }
 }

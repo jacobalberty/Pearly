@@ -43,8 +43,11 @@ abstract class TemplateViewBase extends HtmlViewBase
     public function invoke()
     {
         $registry = $this->registry;
-        $mode = \Http::valueFrom($_GET, '_MODE_', \Http::valueFrom($_GET, '__MODE__', 'html'));
-        if ($mode === 'html' && \Http::valueFrom($_SERVER, 'HTTP_X_REQUESTED_WITH', null) === 'XMLHttpRequest') {
+
+        $query = $registry->serverRequest->getQueryParams();
+        $server = $registry->serverRequest->getserverParams();
+        $mode = \Http::valueFrom($query, '_MODE_', 'html');
+        if ($mode === 'html' && \Http::valueFrom($server, 'HTTP_X_REQUESTED_WITH', null) === 'XMLHttpRequest') {
             $mode = 'xml';
         }
 
@@ -55,7 +58,7 @@ abstract class TemplateViewBase extends HtmlViewBase
 
         switch ($mode) {
             case 'json':
-                $keys = \Http::valueFrom($_GET, '_KEYS_[]', array(), false);
+                $keys = \Http::valueFrom($query, '_KEYS_[]', array(), false);
 
                 if (empty($keys)) {
                     $data = $this->vars;
@@ -83,7 +86,7 @@ abstract class TemplateViewBase extends HtmlViewBase
                 }
                 break;
             case 'xml':
-                $keys = \Http::valueFrom($_GET, '_KEYS_[]', array(), false);
+                $keys = \Http::valueFrom($query, '_KEYS_[]', array(), false);
 
                 if (empty($keys)) {
                     $data = $this->vars;
@@ -117,3 +120,4 @@ abstract class TemplateViewBase extends HtmlViewBase
         // Dummy function
     }
 }
+

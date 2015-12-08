@@ -65,14 +65,16 @@ class Router extends Base
      */
     public function invoke()
     {
+        $serverRequest = $this->registry->serverRequest;
         // Debug Initialization.
         if ($this->registry->debug) {
+            $server = $serverRequest->getServerParams();
             ini_set('display_errors', 'On');
             ini_set('xdebug.show_local_vars', 'On');
             ini_set('xdebug.dump.SERVER', 'HTTP_HOST, SERVER_NAME');
             ini_set('xdebug.dump_globals', 'On');
             ini_set('xdebug.collect_params', '4');
-            ini_set('xdebug.remote_host', $_SERVER['REMOTE_ADDR']);
+            ini_set('xdebug.remote_host', $server['REMOTE_ADDR']);
             ini_set('xdebug.remote_port', '9000');
             ini_set('xdebug.remote_handler', 'dbgp');
             ini_set('xdebug.remote_enable', 'On');
@@ -98,15 +100,16 @@ class Router extends Base
         $auth = $this->getAuth();
 
         // Controller Routing and Redirection.
-        if (!empty($_POST['controller'])) {
-            $action = \Http::post('action');
-            $cinst = ControllerFactory::build($this->registry, \Http::post('controller'), $auth);
+        $post = $serverRequest->getParsedBody();
+        if (!empty($post['controller'])) {
+            $action = \Http::valueFrom($post, 'action');
+            $cinst = ControllerFactory::build($this->registry, \Http::valueFrom($post, 'controller'), $auth);
 
             $f_arr = explode(';', $action);
             $aname = array_shift($f_arr);
             $url = $cinst->invoke($aname, $f_arr);
             if (mb_substr($url, 0, 1) == '?') {
-                $parray = $_POST;
+                $parray = $post;
                 $parray = $this->preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
 
                 $url = '?' . \Http::mquery(mb_substr($url, 1), '&', $parray);
@@ -117,7 +120,7 @@ class Router extends Base
             return;
         }
 
-        $view = ViewFactory::build($this->registry, \Http::get('page', null), $auth);
+        $view = ViewFactory::build($this->registry, \Http::valueFrom($serverRequest->getQueryParams(), 'page', null), $auth);
         $view->invoke();
     }
 

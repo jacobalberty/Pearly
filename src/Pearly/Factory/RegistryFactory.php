@@ -22,10 +22,11 @@ class RegistryFactory
      * @return \Pearly\Core\IRegistry The constructed registry object.
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    public static function build()
+    public static function build(\Psr\Http\Message\ServerRequestInterface $serverRequest)
     {
-        $pkg = \Http::valueFrom($_REQUEST, 'pkg', parse_ini_file(CORE_PATH.'/conf/pearly.inc.php', false)['pkg']);
-        $conf = CORE_PATH . '/conf/' . \Http::valueFrom($_REQUEST, 'conf', mb_strtolower($pkg)) . '.inc.php';
+        $req = array_merge($serverRequest->getParsedBody(), $serverRequest->getQueryParams());
+        $pkg = \Http::valueFrom($req, 'pkg', parse_ini_file(CORE_PATH.'/conf/pearly.inc.php', false)['pkg']);
+        $conf = CORE_PATH . '/conf/' . \Http::valueFrom($req, 'conf', mb_strtolower($pkg)) . '.inc.php';
         if (!is_readable($conf)) {
             throw new \Exception("Couldn't read {$conf}");
         }
@@ -35,6 +36,6 @@ class RegistryFactory
         }
 
         $rname = "\\{$pkg}\\Core\\Registry";
-        return new $rname($ini_data);
+        return new $rname($ini_data, $serverRequest);
     }
 }
