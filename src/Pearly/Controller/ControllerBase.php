@@ -43,7 +43,7 @@ abstract class ControllerBase extends Base implements IController
     {
         $this->logger = is_null($logger) ? \Pearly\Factory\LoggerFactory::build() : $logger;
 
-        $this->back = '?' . $_SERVER['QUERY_STRING'];
+        $this->back = '?' . $this->registry->server['QUERY_STRING'];
 
         $this->authorized = $this->authCheck($auth);
 
@@ -90,8 +90,8 @@ abstract class ControllerBase extends Base implements IController
         }
         try {
             $this->doCreate();
-            $_POST['__NAME__'] = '$_POST';
-            $url = call_user_func_array(array($this, $fname), array_merge(array($_POST), $params));
+//            $_POST['__NAME__'] = '$_POST';
+            $url = call_user_func_array(array($this, $fname), array_merge(array($this->registry->parsedBody), $params));
         } catch (\ErrorException $e) {
             $this->addMessage('['.strftime('%c').'] ' . $this->doExceptionMessage($e) . PHP_EOL);
             $this->logger->error(
@@ -100,12 +100,12 @@ abstract class ControllerBase extends Base implements IController
                 . "' On Line: '" . $e->getLine()
                 . "' with controller='" . get_class($this)
                 . "' and action='${fname}' "
-                . "and _POST=".var_export($_POST, true)
+                . "and _POST=".var_export($this->registry->parsedBody, true)
             );
 
             $url = $this->back;
 
-            $parray = $_POST;
+            $parray = $this->registry->parsedBody;
             $parray = $this->preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
             $query = parse_url($url, PHP_URL_QUERY);
             if ($query) {
