@@ -43,7 +43,7 @@ abstract class ControllerBase extends Base implements IController
     {
         $this->logger = is_null($logger) ? \Pearly\Factory\LoggerFactory::build() : $logger;
 
-        $this->back = '?' . $this->registry->server['QUERY_STRING'];
+        $this->back = '?' . $registry->server['QUERY_STRING'];
 
         $this->authorized = $this->authCheck($auth);
 
