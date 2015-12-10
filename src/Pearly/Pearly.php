@@ -60,6 +60,7 @@ class Pearly
 
     public static function optimizejs($files, $tmpdir = '../tmp/', $lib_dir = '../3rdparty/gcc/')
     {
+        self::setTimeZone("America/Chicago");
         set_error_handler('\Pearly\Pearly::exceptionErrorHandler', E_ALL);
         /** @todo detect java to ensure this will run */
         $localcompile = is_readable("{$lib_dir}/compiler.jar");
