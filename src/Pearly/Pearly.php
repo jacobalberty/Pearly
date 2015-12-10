@@ -123,12 +123,12 @@ class Pearly
             $etag = md5_file($cache_file);
             header("Last-Modified: ".gmdate("D, d M Y H:i:s", $cache_mtime)." GMT");
             header("Etag: \"{$etag}\"");
-            if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && isset($_server['HTTP_IF_NONE_MATCH'])) {
-                if (@strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime ||
-                    @trim(@$_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
-                        header("HTTP/1.1 304 Not Modified");
-                            return;
-                }
+            if (
+                (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cache_mtime)
+                || (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) == $etag)
+            ) {
+                header("HTTP/1.1 304 Not Modified");
+                return;
             }
             readfile($cache_file);
         }
