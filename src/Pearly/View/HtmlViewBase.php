@@ -347,18 +347,6 @@ HTML;
     }
 
     /**
-     * This function converts a xhtml document to html.
-     *
-     * @param string $buffer The xhtml document to convert.
-     *
-     * @return string A xhtml document converted to valid html.
-     */
-    public static function fixCode($buffer)
-    {
-        return (preg_replace("!\s*/>!", ">", $buffer));
-    }
-
-    /**
      * This function detects application/xhtml+xml support in the browser and either sends the document with
      * the proper application/xhtml+xml mimetype or automatically converts valid xhtml to regular html
      * and sends the document as text/html.
@@ -382,19 +370,14 @@ HTML;
                 $mime = "application/xhtml+xml";
             }
         }
-        if ($mime == "application/xhtml+xml") {
-            ob_start();
-            $prolog_type = <<<XML
+        ob_start();
+        $prolog_type = <<<XML
 <?xml version="1.0" encoding="{$charset}" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html class="no-js" lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml" >
 
 XML;
-        } else {
-            ob_start(array(get_class($this), "fixCode"));
-            $prolog_type = "<!DOCTYPE html>\n<html class=\"no-js\" lang=\"en\">\n";
-        }
 
         @header("Content-Type: $mime;charset=$charset");
         @header("Vary: Accept");
