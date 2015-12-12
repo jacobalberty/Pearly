@@ -119,18 +119,4 @@ class Html
     {
         return \Http::mquery($query, $sep);
     }
-
-    /**
-     *
-     * Form helper function
-     * This function no longer does anything
-     *
-     * @deprecated
-     *
-     * @return string html an empty string
-     */
-    public static function mform()
-    {
-        return '';
-    }
 }
