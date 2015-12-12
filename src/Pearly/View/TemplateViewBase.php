@@ -110,9 +110,8 @@ abstract class TemplateViewBase extends HtmlViewBase
                 extract($this->vars);
 
                 include $this->getFragm($this->template, 'tpl/');
-                $html = ob_get_clean();
-                $dom = new \DOMDocument("1.0", 'UTF-8');
-                $dom->loadXml($html);
+                $dom = new \DOMDocument();
+                $dom->loadXml(ob_get_clean());
                 $forms = $dom->getElementsByTagName('form');
                 foreach ($forms as $form) {
                     $input = $dom->createElement('input');
