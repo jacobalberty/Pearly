@@ -123,18 +123,14 @@ class Html
     /**
      *
      * Form helper function
-     * This function is used to create the hidden inputs for get forms to allow conf/package options to persist.
+     * This function no longer does anything
      *
-     * @return string html data to be injected into get forms.
+     * @deprecated
+     *
+     * @return string html an empty string
      */
     public static function mform()
     {
-        $tmp = null;
-        if (isset($_REQUEST['conf'])) {
-            $tmp .= '<input name="conf" type="hidden" value="' . htmlspecialchars($_REQUEST['conf']) . '" />';
-        } elseif (isset($_REQUEST['pkg'])) {
-            $tmp .= '<input name="pkg" type="hidden" value="' . htmlspecialchars($_REQUEST['pkg']) . '" />';
-        }
-        return $tmp;
+        return '';
     }
 }
