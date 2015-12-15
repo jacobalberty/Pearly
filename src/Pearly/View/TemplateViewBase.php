@@ -111,7 +111,17 @@ abstract class TemplateViewBase extends HtmlViewBase
 
                 include $this->getFragm($this->template, 'tpl/');
                 $dom = new \DOMDocument();
-                $dom->loadXml(ob_get_clean());
+                $html = ob_get_clean();
+                try {
+                    $dom->loadXml($html);
+                } catch (\Exception $e) {
+                    $title = "Error Parsing Document";
+                    $message = $e->getMessage();
+                    include 'html/error.php';
+                    $tmpnam = tempnam('tmp/', 'docparse-');
+                    file_put_contents($tmpnam, $html);
+                    throw new \Exception("Document Parsing exception: {$e->getMessage()}, Saved document at: {$tmpnam}", 0, $e);
+                }
                 $forms = $dom->getElementsByTagName('form');
                 foreach ($forms as $form) {
                     $input = $dom->createElement('input');
