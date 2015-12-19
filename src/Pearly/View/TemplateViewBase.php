@@ -111,6 +111,20 @@ abstract class TemplateViewBase extends HtmlViewBase
 
                 include $this->getFragm($this->template, 'tpl/');
                 $dom = new \DOMDocument();
+                $cookie = $this->registry->cookie;
+                if (empty($cookie['token'])) {
+                    $token = bin2hex(random_bytes(32));
+                    setcookie(
+                        'token',
+                        $token,
+                        0,
+                        "/",
+                        "",
+                        false,
+                        true
+                    );
+                }
+                $token = isset($cookie['token']) ? $cookie['token'] : $token;
                 $html = ob_get_clean();
                 try {
                     $dom->loadXml($html);
@@ -122,9 +136,21 @@ abstract class TemplateViewBase extends HtmlViewBase
                     file_put_contents($tmpnam, $html);
                     throw new \Exception("Document Parsing exception: {$e->getMessage()}, Saved document at: {$tmpnam}", 0, $e);
                 }
+                $xpath = new \DOMXPath($dom);
+                $xpath->registerNamespace('html','http://www.w3.org/1999/xhtml');
                 $forms = $dom->getElementsByTagName('form');
                 foreach ($forms as $form) {
-                    $input = $dom->createElement('input');
+                    $inputs = $xpath->query('.//html:input[@name="controller"]', $form);
+                    if ($inputs->length > 0) {
+                        $cName = $inputs[$inputs->length-1]->getAttribute('value');
+                        $tHash = hash_hmac('sha256', $cName, $token);
+                        $input = $dom->createElementNS('http://www.w3.org/1999/xhtml', 'input');
+                        $input->setAttribute('name', '__CSRF_TOKEN__');
+                        $input->setAttribute('type', 'hidden');
+                        $input->setAttribute('value', $tHash);
+                        $form->appendChild($input);
+                    }
+                    $input = $dom->createElementNS('http://www.w3.org/1999/xhtml', 'input');
                     $input->setAttribute('name', 'conf');
                     $input->setAttribute('type', 'hidden');
                     $input->setAttribute('value', $this->registry->cfg);
@@ -141,4 +167,3 @@ abstract class TemplateViewBase extends HtmlViewBase
         // Dummy function
     }
 }
-
