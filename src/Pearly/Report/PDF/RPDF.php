@@ -461,6 +461,7 @@ class RPDF extends \fpdi\tfpdf
     private $issetfont=false;
     private $issetcolor=false;
     private $origFontSize;
+    private $orderList=false;
 
     private function hex2dec($color = "#000000")
     {
@@ -487,7 +488,7 @@ class RPDF extends \fpdi\tfpdf
     {
         $html=strip_tags(
             $html,
-            "<a><img><p><br><font><tr><blockquote><h1><h2><h3><h4><pre><red><blue><ul><li><hr><b><i><u><strong><em>"
+            "<a><img><p><br><font><tr><blockquote><h1><h2><h3><h4><pre><red><blue><ul><li><hr><b><i><u><strong><em><ol>"
         );
         $html=str_replace("\n", ' ', $html); //replace carriage returns by spaces
 
@@ -618,10 +619,19 @@ class RPDF extends \fpdi\tfpdf
                     $this->Ln(3);
                 }
                 break;
+            case 'OL':
+                $this->orderList = 0;
+                break;
             case 'LI':
-                $this->Ln(2);
+                $this->Ln($height*.75);
                 $this->SetTextColor(190, 0, 0);
-                $this->Write($height, '     » ');
+//                $lhead ='     » ';
+                $lhead ='     * ';
+                if ($this->orderList !== false ) {
+                    $curItem = ++$this->orderList;
+                    $lhead = "{$curItem}. ";
+                }
+                $this->Write($height, $lhead);
                 $this->resetableSetTextColor(-1);
                 break;
             case 'BR':
@@ -698,6 +708,9 @@ class RPDF extends \fpdi\tfpdf
                     $this->setFont('Times', '', 12);
                     $this->issetfont=false;
                 }
+                break;
+            case 'OL':
+                $this->orderList = false;
                 break;
         }
     }
