@@ -675,7 +675,7 @@ class RPDF extends \fpdi\tfpdf
                 break;
             case 'PRE':
                 $this->SetFont('', '', 12);
-                $this->SetFontSize($this->orgFont);
+                $this->SetFontSize($this->origFontSize);
                 $this->PRE=false;
                 break;
             case 'RED':
