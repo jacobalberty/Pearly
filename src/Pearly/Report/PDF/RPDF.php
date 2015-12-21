@@ -460,7 +460,7 @@ class RPDF extends \fpdi\tfpdf
     private $PRE=false;
     private $issetfont=false;
     private $issetcolor=false;
-    private $origFontSize;
+    private $origFont = [];
     private $orderList=false;
 
     private function hex2dec($color = "#000000")
@@ -546,7 +546,8 @@ class RPDF extends \fpdi\tfpdf
 
     private function openTag($tag, $attr, $height = 5)
     {
-        $this->origFontSize = $this->FontSizePt;
+        $this->origFont['Size'] = $this->FontSizePt;
+        $this->origFont['Family'] = $this->FontFamily;
         //Opening tag
         switch ($tag) {
             case 'STRONG':
@@ -668,14 +669,13 @@ class RPDF extends \fpdi\tfpdf
             case 'H3':
             case 'H4':
                 $this->Ln(6);
-                $this->setFontSize($this->origFontSize);
+                $this->setFontSize($this->origFont['Size']);
                 $this->setStyle('U', false);
                 $this->setStyle('B', false);
                 $this->resetableSetTextColor(-1);
                 break;
             case 'PRE':
-                $this->SetFont('', '', 12);
-                $this->SetFontSize($this->origFontSize);
+                $this->SetFont($this->origFont['Family'], '', $this->origFont['Size']);
                 $this->PRE=false;
                 break;
             case 'RED':
