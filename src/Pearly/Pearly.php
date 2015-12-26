@@ -91,8 +91,14 @@ class Pearly
         $cache_file = "{$tmpdir}/{$hfname}";
         if (!is_readable($cache_file) || $mtime > filemtime($cache_file)) {
             $lockfile = "{$cache_file}.lockfile";
-            $file = fopen($lockfile, 'w+');
-            if (!flock($file, LOCK_NB | LOCK_EX)) {
+            try {
+                $file = fopen($lockfile, 'w+');
+                $res = flock($file, LOCK_NB | LOCK_EX);
+            } catch (\Exception $e) {
+                // There was an issue locking the file so always avoid compile
+                $res = false;
+            }
+            if (!$res) {
                 self::concatJs($afiles);
                 return;
             }
