@@ -85,20 +85,61 @@ class Pearly
         return self::concatJs($afiles);
     }
 
-    private static function doRebuild($afiles, $tmpdir, $mtime, $lib_dir)
+    public static function gearmanWorker($dir = __DIR__, array $functions = [])
+    {
+        mb_internal_encoding('UTF-8');
+
+        if (!defined('CORE_PATH')) {
+            define('CORE_PATH', $dir);
+        }
+
+        set_error_handler('\Pearly\Pearly::exceptionErrorHandler', E_ALL);
+        self::setTimeZone("America/Chicago");
+
+        $worker = new \GearmanWorker();
+        $conf_data = parse_ini_file('conf/pearly.inc.php', true);
+
+        $worker->addServer($conf_data['gearman']['server'], $conf_data['gearman']['port']);
+
+        foreach($functions as $name => $func) {
+            $worker->addFunction($name, $func);
+        }
+
+        while ($worker->work()) {
+            if ($worker->returnCode() != GEARMAN_SUCCESS) {
+                break;
+            }
+        }
+    }
+
+    public static function doRebuild($afiles, $tmpdir, $mtime, $lib_dir, $gm = false)
     {
         $hfname = hash('md5', implode($afiles), false) . '.js';
         $cache_file = "{$tmpdir}/{$hfname}";
         if (!is_readable($cache_file) || $mtime > filemtime($cache_file)) {
-            $lockfile = "{$cache_file}.lockfile";
-            try {
-                $file = fopen($lockfile, 'w+');
-                $res = flock($file, LOCK_NB | LOCK_EX);
-            } catch (\Exception $e) {
-                // There was an issue locking the file so always avoid compile
-                $res = false;
+            if (!$gm && class_exists('\GearmanClient')) {
+                try {
+                    $client = new \GearmanClient();
+                    $client->setTimeout(1000);
+                    // Add a server
+                    $conf_data = parse_ini_file('../conf/pearly.inc.php', true);
+                    $client->addServer($conf_data['gearman']['server']); // by default host/port will be "localhost" & 4730
+                    // Send reverse job
+                    $result = $client->doBackground("optimizeJs", json_encode([
+                        'afiles' => $afiles,
+                        'tmpdir' => $tmpdir,
+                        'mtime' => $mtime,
+                        'lib_dir' => $lib_dir,
+                    ]));
+                    self::concatJs($afiles);
+                    return;
+                } catch (\ErrorException $e) {
+
+                }
             }
-            if (!$res) {
+            $lockfile = "{$cache_file}.lockfile";
+            $file = fopen($lockfile, 'w+');
+            if (!flock($file, LOCK_NB | LOCK_EX)) {
                 self::concatJs($afiles);
                 return;
             }
