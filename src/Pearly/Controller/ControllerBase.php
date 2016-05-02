@@ -72,6 +72,15 @@ abstract class ControllerBase extends Base implements IController
      */
     public function invoke($action, array $params)
     {
+        $parsedBody = $this->registry->parsedBody;
+        if ( !isset($this->registry->cookie['token']) ||
+            !isset($parsedBody['__CSRF_TOKEN__'])
+            || !$this->validateToken($parsedBody['__CSRF_TOKEN__'], $parsedBody['controller'])
+        ) {
+//            $this->addMessage("CSRF Token failure, please refresh and try again");
+            $this->logger->error("CSRF attack detected: " . var_export($parsedBody, true));
+//            return $this->back;
+        }
         $fname = "{$action}Action";
         if (!method_exists($this, $fname)) {
             $this->addMessage("Action: '{$action}' does not exist");
@@ -91,7 +100,7 @@ abstract class ControllerBase extends Base implements IController
         try {
             $this->doCreate();
 //            $_POST['__NAME__'] = '$_POST';
-            $url = call_user_func_array(array($this, $fname), array_merge(array($this->registry->parsedBody), $params));
+            $url = call_user_func_array(array($this, $fname), array_merge(array($parsedBody), $params));
         } catch (\ErrorException $e) {
             $this->addMessage('['.strftime('%c').'] ' . $this->doExceptionMessage($e) . PHP_EOL);
             $this->logger->error(
@@ -100,12 +109,12 @@ abstract class ControllerBase extends Base implements IController
                 . "' On Line: '" . $e->getLine()
                 . "' with controller='" . get_class($this)
                 . "' and action='${fname}' "
-                . "and _POST=".var_export($this->registry->parsedBody, true)
+                . "and _POST=".var_export($parsedBody, true)
             );
 
             $url = $this->back;
 
-            $parray = $this->registry->parsedBody;
+            $parray = $parsedBody;
             $parray = $this->preg_grep_keys('/^_[a-zA-Z0-9]/', $parray);
             $query = parse_url($url, PHP_URL_QUERY);
             if ($query) {
@@ -224,5 +233,15 @@ abstract class ControllerBase extends Base implements IController
             ? $auth[$classname] : $authorized;
 
         return $authorized;
+    }
+
+    private function validateToken($token, $controller)
+    {
+        $calc = hash_hmac('sha256', $controller, $this->registry->cookie['token']);
+        if (hash_equals($token, $calc)) {
+            return true;
+        }
+        $this->logger->debug("Expected: '{$calc}', Receieved: '{$token}'");
+        return false;
     }
 }
