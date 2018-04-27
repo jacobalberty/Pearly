@@ -34,6 +34,10 @@ class Pearly
     {
         $timezone = "";
 
+        if (isset($_ENV['TZ']) && date_default_timezone_set($_ENV['TZ'])) {
+            return;
+        }
+
         // On many systems (Mac, for instance) "/etc/localtime" is a symlink
         // to the file with the timezone info
         if (is_link("/etc/localtime")) {
