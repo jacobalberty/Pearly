@@ -57,7 +57,8 @@ class Html
     {
         $attr = '';
         foreach ($attributes as $k => $v) {
-            $attr .= "{$k}=\"${v}\" ";
+            if ($v !== null)
+                $attr .= "{$k}=\"${v}\" ";
         }
         return "<input {$attr} />";
     }
