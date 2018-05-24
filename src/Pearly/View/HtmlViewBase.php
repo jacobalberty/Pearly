@@ -315,10 +315,11 @@ abstract class HtmlViewBase extends ViewBase
         $xml .= "<ul>";
         foreach ($array_item as $id => $value) {
             if (is_array($value)) {
-                $xml .= "<li><a>{$id}</a>" . $this->array2ul($value, $match) . "</li>\r\n";
+                $tid = isset($value['_']) ? $value['_'] : "<a>{$id}</a>";
+                $xml .= "<li>{$tid}" . $this->array2ul($value, $match) . "</li>\r\n";
             } elseif ($id === $match) {
                 $xml .= "<li id=\"{$id}\"><b class=\"selected\">{$value}</b></li>\r\n";
-            } else {
+            } elseif ($id !== '_') {
                 $xml .= "<li id=\"{$id}\">{$value}</li>\r\n";
             }
         }
