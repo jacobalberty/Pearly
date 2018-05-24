@@ -68,6 +68,7 @@ class DateTimeType extends TypeBase implements IType
      */
     public function convertToPHPValue($value)
     {
+        if (is_int($value)) return $value;
         return !is_null($value) ? strtotime($value) : null;
     }
 
@@ -82,7 +83,7 @@ class DateTimeType extends TypeBase implements IType
      */
     public function convertToDatabaseValue($value)
     {
-        return (!is_null($value) && !empty($value)) ? $value : null;
+        return (!is_null($value) && !empty($value)) ? date('Y-m-d H:i:s', $value) : null;
     }
 
     /**
