@@ -82,7 +82,7 @@ class DateTimeType extends TypeBase implements IType
      */
     public function convertToDatabaseValue($value)
     {
-        return (!is_null($value) && !empty($value)) ? date(DATE_ISO8601, $value) : null;
+        return (!is_null($value) && !empty($value)) ? $value : null;
     }
 
     /**
