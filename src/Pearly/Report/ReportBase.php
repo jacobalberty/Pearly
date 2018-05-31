@@ -42,7 +42,7 @@ abstract class ReportBase extends Base implements IReport
             ? $auth['default']
             : $this->authorized;
         $this->authorized = isset($auth['reportdefault'])
-            ? $auth['viewdefault']
+            ? $auth['reportdefault']
             : $this->authorized;
         $this->authorized = isset($auth[$classname])
             ? $auth[$classname]
