@@ -99,6 +99,8 @@ class Router extends Base
 
         $auth = $this->getAuth();
 
+        $this->registry->perms = $auth;
+
         // Controller Routing and Redirection.
         $post = $serverRequest->getParsedBody();
         if (!empty($post['controller'])) {

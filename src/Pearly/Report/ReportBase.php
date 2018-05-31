@@ -19,6 +19,8 @@ abstract class ReportBase extends Base implements IReport
     /** @var \Pearly\Factory\DAOFactory Used to build new Data Access Objects */
     private $daofactory;
 
+    protected $authorized;
+
     /**
      * Constructor function.
      *
@@ -31,6 +33,25 @@ abstract class ReportBase extends Base implements IReport
     public function __construct(\Pearly\Core\IRegistry &$registry = null)
     {
         parent::__construct($registry);
+
+        $refc = new \ReflectionClass($this);
+        $classname = $refc->getShortName();
+
+        $auth = $this->registry->perms;
+        $this->authorized = isset($auth['default'])
+            ? $auth['default']
+            : $this->authorized;
+        $this->authorized = isset($auth['reportdefault'])
+            ? $auth['viewdefault']
+            : $this->authorized;
+        $this->authorized = isset($auth[$classname])
+            ? $auth[$classname]
+            : $this->authorized;
+
+        if (!$this->authorized) {
+            throw new \Exception('You are not authorized to access this report');
+        }
+
         $this->daofactory = new \Pearly\Factory\DAOFactory($registry);
     }
 
