@@ -51,7 +51,7 @@ class DateTimeType extends TypeBase implements IType
                 \IntlDateFormatter::MEDIUM
             );
             if ($this->registry->iso8601) {
-                self::$intl->setPattern("YYYY-MM-dd'T'HH:mm:ssZ");
+                self::$intl->setPattern("yyyy-MM-dd'T'HH:mm:ssZ");
             }
         }
         return (!is_null($value) && !empty($value)) ? self::$intl->format($value) : null;

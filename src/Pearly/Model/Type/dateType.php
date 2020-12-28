@@ -51,7 +51,7 @@ class DateType extends TypeBase implements IType
                 \IntlDateFormatter::NONE
             );
             if ($this->registry->iso8601) {
-                self::$intl->setPattern('YYYY-MM-dd');
+                self::$intl->setPattern('yyyy-MM-dd');
             }
         }
         return (!is_null($value) && !empty($value)) ? self::$intl->format($value) : null;
